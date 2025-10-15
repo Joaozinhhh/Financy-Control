@@ -10,10 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   get_it: ^8.2.0
+  http: ^1.5.0
   json_annotation: ^4.9.0
   json_serializable: ^6.11.1
-  # firebase_auth: ^6.1.1 TODO: setup firebase auth
-  # firebase_core: ^4.2.0 TODO: setup firebase
 
 dev_dependencies:
   flutter_test:
