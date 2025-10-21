@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:financy_control/core/models/user_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -14,7 +16,13 @@ enum Endpoints {
 
 final mockClient = MockClient((request) async {
   if (request.url.path == Endpoints.signIn.path && request.method == 'POST') {
-    return http.Response('{"token":"dummy_token"}', 200);
+    final body = request.body;
+    if (body.contains('email') && body.contains('password')) {
+      return http.Response(
+        '{"id":"1","name":"Test User","email":"test@example.com"}',
+        200,
+      );
+    }
   }
   if (request.url.path == Endpoints.getUser.path && request.method == 'GET') {
     return http.Response(
@@ -24,7 +32,9 @@ final mockClient = MockClient((request) async {
   }
   if (request.url.path == Endpoints.signUp.path && request.method == 'POST') {
     final body = request.body;
-    if (body.contains('email') && body.contains('password')) {
+    if (body.contains('name') &&
+        body.contains('email') &&
+        body.contains('password')) {
       return http.Response(
         '{"id":"1","name":"Test User","email":"test@example.com"}',
         200,
@@ -42,29 +52,30 @@ final mockClient = MockClient((request) async {
 });
 
 Future<UserModel> mockCreateUser(UserInputModel input) async {
-  mockClient.post(
+  final response = await mockClient.post(
     Uri.parse(Endpoints.signUp.path),
     body: input.toJson(),
   );
+  if (response.statusCode != 200) {
+    throw Exception('Failed to create user');
+  }
 
-  return UserModel(
-    id: '1',
-    name: input.name ?? 'Test User',
-    email: input.email,
-  );
+  final user = UserModel.fromJson(jsonDecode(response.body));
+
+  return user;
 }
 
 Future<UserModel> mockLogin(UserInputModel input) async {
-  mockClient.post(
+  final response = await mockClient.post(
     Uri.parse(Endpoints.signIn.path),
     body: input.toJson(),
   );
 
-  return UserModel(
-    id: '1',
-    name: 'Test User',
-    email: input.email,
-  );
+  if (response.statusCode != 200) {
+    throw Exception('Failed to log in');
+  }
+
+  return UserModel.fromJson(jsonDecode(response.body));
 }
 
 Future<bool> mockForgotPassword(String email) async {

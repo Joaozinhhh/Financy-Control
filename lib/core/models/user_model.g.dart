@@ -27,7 +27,7 @@ UserInputModel _$UserInputModelFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$UserInputModelToJson(UserInputModel instance) =>
     <String, dynamic>{
-      'name': instance.name,
+      'name': ?instance.name,
       'email': instance.email,
       'password': instance.password,
     };

@@ -22,6 +22,7 @@ class UserModel {
 
 @JsonSerializable()
 class UserInputModel {
+  @JsonKey(includeIfNull: false)
   final String? name;
   final String email;
   final String password;

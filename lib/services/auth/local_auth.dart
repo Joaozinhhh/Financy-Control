@@ -5,6 +5,10 @@ import 'package:financy_control/services/mock_repository/mock_repository.dart';
 import 'auth_service.dart';
 
 class LocalAuth implements AuthService {
+  LocalAuth._();
+  static LocalAuth? _instance;
+  factory LocalAuth() => _instance ??= LocalAuth._();
+
   UserModel? _currentUser;
 
   @override
@@ -25,7 +29,7 @@ class LocalAuth implements AuthService {
       UserInputModel(email: email, password: password),
     );
     _currentUser = response;
-    return DataResult.success(response);
+    return DataResult.success(_currentUser!);
   }
 
   @override
