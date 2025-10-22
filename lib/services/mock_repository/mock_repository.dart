@@ -52,6 +52,7 @@ final mockClient = MockClient((request) async {
 });
 
 Future<UserModel> mockCreateUser(UserInputModel input) async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   final response = await mockClient.post(
     Uri.parse(Endpoints.signUp.path),
     body: input.toJson(),
@@ -66,6 +67,7 @@ Future<UserModel> mockCreateUser(UserInputModel input) async {
 }
 
 Future<UserModel> mockLogin(UserInputModel input) async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   final response = await mockClient.post(
     Uri.parse(Endpoints.signIn.path),
     body: input.toJson(),
@@ -79,6 +81,7 @@ Future<UserModel> mockLogin(UserInputModel input) async {
 }
 
 Future<bool> mockForgotPassword(String email) async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   final response = await mockClient.post(
     Uri.parse(Endpoints.forgotPassword.path),
     body: {'email': email},

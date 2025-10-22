@@ -1,5 +1,8 @@
 import 'package:financy_control/features/mock/home_screen.dart';
 import 'package:financy_control/features/mock/mock_cli_screen.dart';
+import 'package:financy_control/features/onboarding/auth/reset_password/reset_password_view.dart';
+import 'package:financy_control/features/onboarding/auth/sign_in/sign_in_view.dart';
+import 'package:financy_control/features/onboarding/auth/sign_up/sign_up_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,7 +13,7 @@ enum Screen {
 
   signUp('/sign-up'),
   signIn('/sign-in'),
-  forgotPassword('/forgot-password'),
+  resetPassword('/reset-password'),
 
   home('/home'),
   transactions('transactions', parent: Screen.home),
@@ -106,17 +109,17 @@ final router = GoRouter(
     GoRoute(
       path: Screen.signUp._path,
       name: Screen.signUp.name,
-      builder: (context, state) => Placeholder(),
+      builder: (context, state) => SignUpView(),
     ),
     GoRoute(
       path: Screen.signIn._path,
       name: Screen.signIn.name,
-      builder: (context, state) => Placeholder(),
+      builder: (context, state) => SignInView(),
     ),
     GoRoute(
-      path: Screen.forgotPassword._path,
-      name: Screen.forgotPassword.name,
-      builder: (context, state) => Placeholder(),
+      path: Screen.resetPassword._path,
+      name: Screen.resetPassword.name,
+      builder: (context, state) => ResetPasswordView(),
     ),
   ],
 );
