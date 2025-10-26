@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:financy_control/core/models/transaction_model.dart';
 import 'package:financy_control/core/models/user_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -8,7 +9,11 @@ enum Endpoints {
   signIn('/api/sign-in'),
   signUp('/api/sign-up'),
   forgotPassword('/api/forgot-password'),
-  getUser('/api/user');
+  getUser('/api/user'),
+  getTransactions('/api/transactions'),
+  createTransaction('/api/transactions'),
+  updateTransaction('/api/transactions'),
+  deleteTransaction('/api/transactions');
 
   final String path;
   const Endpoints(this.path);
@@ -48,6 +53,48 @@ final mockClient = MockClient((request) async {
       return http.Response('{"message":"Password reset link sent"}', 200);
     }
   }
+  if (request.url.path == Endpoints.getTransactions.path &&
+      request.method == 'GET') {
+    return http.Response(
+      '[{"id":"1","amount":100.0,"description":"Test Transaction","date":"2023-01-01T00:00:00.000Z","category":"salary"}]',
+      200,
+    );
+  }
+  if (request.url.path == Endpoints.createTransaction.path &&
+      request.method == 'POST') {
+    final body = request.body;
+    if (body.contains('amount') &&
+        body.contains('description') &&
+        body.contains('date') &&
+        body.contains('category')) {
+      return http.Response(
+        '{"id":"1","amount":100.0,"description":"Test Transaction","date":"2023-01-01T00:00:00.000Z","category":"salary"}',
+        201,
+      );
+    }
+  }
+  if (request.url.path == Endpoints.updateTransaction.path &&
+      request.method == 'PUT') {
+    final body = request.body;
+    if (body.contains('id') &&
+        body.contains('amount') &&
+        body.contains('description') &&
+        body.contains('date') &&
+        body.contains('category')) {
+      return http.Response(
+        '{"id":"1","amount":100.0,"description":"Test Transaction","date":"2023-01-01T00:00:00.000Z","category":"salary"}',
+        200,
+      );
+    }
+  }
+  if (request.url.path == Endpoints.deleteTransaction.path &&
+      request.method == 'DELETE') {
+    final body = request.body;
+    if (body.contains('id')) {
+      return http.Response('', 204);
+    }
+  }
+
   return http.Response('Not Found', 404);
 });
 
@@ -88,4 +135,81 @@ Future<bool> mockForgotPassword(String email) async {
   );
 
   return response.statusCode == 200;
+}
+
+final List<TransactionModel> _inMemoryTransactions = [];
+
+Future<TransactionModel> mockCreateTransaction(
+  TransactionInputModel input,
+) async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+  final transaction = TransactionModel(
+    id: DateTime.now().millisecondsSinceEpoch.toString(),
+    amount: input.amount ?? 0.0,
+    description: input.description,
+    date: input.date,
+    category: input.category,
+  );
+  _inMemoryTransactions.add(transaction);
+  return transaction;
+}
+
+Future<TransactionModel> mockUpdateTransaction(
+  String id,
+  TransactionInputModel input,
+) async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+  final index = _inMemoryTransactions.indexWhere((t) => t.id == id);
+  if (index == -1) {
+    throw Exception('Transaction not found');
+  }
+  final updatedTransaction = TransactionModel(
+    id: id,
+    amount: input.amount ?? _inMemoryTransactions[index].amount,
+    description: input.description,
+    date: input.date,
+    category: input.category,
+  );
+  _inMemoryTransactions[index] = updatedTransaction;
+  return updatedTransaction;
+}
+
+Future<bool> mockDeleteTransaction(String id) async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+  final index = _inMemoryTransactions.indexWhere((t) => t.id == id);
+  if (index == -1) {
+    throw Exception('Transaction not found');
+  }
+  _inMemoryTransactions.removeAt(index);
+  return true;
+}
+
+Future<List<TransactionModel>> mockGetTransactions({
+  DateTime? startDate,
+  DateTime? endDate,
+}) async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+
+  // Filter transactions by date range if provided
+  List<TransactionModel> filteredTransactions = _inMemoryTransactions;
+  if (startDate != null) {
+    filteredTransactions = filteredTransactions
+        .where(
+          (transaction) =>
+              transaction.date.millisecondsSinceEpoch >=
+              startDate.millisecondsSinceEpoch,
+        )
+        .toList();
+  }
+  if (endDate != null) {
+    filteredTransactions = filteredTransactions
+        .where(
+          (transaction) =>
+              transaction.date.millisecondsSinceEpoch <=
+              endDate.millisecondsSinceEpoch,
+        )
+        .toList();
+  }
+
+  return List.unmodifiable(filteredTransactions);
 }
