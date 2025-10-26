@@ -1,8 +1,10 @@
+import 'package:financy_control/core/models/transaction_model.dart';
 import 'package:financy_control/features/mock/home_screen.dart';
 import 'package:financy_control/features/mock/mock_cli_screen.dart';
 import 'package:financy_control/features/onboarding/auth/reset_password/reset_password_view.dart';
 import 'package:financy_control/features/onboarding/auth/sign_in/sign_in_view.dart';
 import 'package:financy_control/features/onboarding/auth/sign_up/sign_up_view.dart';
+import 'package:financy_control/features/transactions/transactions_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -17,7 +19,11 @@ enum Screen {
 
   home('/home'),
   transactions('transactions', parent: Screen.home),
+  transactionCreate('create', parent: Screen.transactions),
+  transactionEdit('edit/:id', parent: Screen.transactions),
   categories('categories', parent: Screen.home),
+  categoryCreate('create', parent: Screen.categories),
+  categoryEdit('edit/:id', parent: Screen.categories),
   statistics('statistics', parent: Screen.home),
   reports('reports', parent: Screen.statistics),
 
@@ -63,7 +69,21 @@ final router = GoRouter(
         GoRoute(
           path: Screen.transactions._path,
           name: Screen.transactions.name,
-          builder: (context, state) => Placeholder(),
+          builder: (context, state) => TransactionsView(),
+          routes: [
+            GoRoute(
+              path: Screen.transactionCreate._path,
+              name: Screen.transactionCreate.name,
+              builder: (context, state) => TransactionFormView(),
+            ),
+            GoRoute(
+              path: Screen.transactionEdit._path,
+              name: Screen.transactionEdit.name,
+              builder: (context, state) => TransactionFormView(
+                transaction: state.extra as TransactionModel,
+              ),
+            ),
+          ],
         ),
         GoRoute(
           path: Screen.categories._path,
