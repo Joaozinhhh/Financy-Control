@@ -213,3 +213,30 @@ Future<List<TransactionModel>> mockGetTransactions({
 
   return List.unmodifiable(filteredTransactions);
 }
+
+Future<Map<String, String>> mockGetUserProfile() async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+  return {
+    'name': 'Test User',
+    'email': 'test@example.com',
+    'photoUrl': 'https://i.pravatar.cc/300',
+  };
+}
+
+Future<bool> mockUpdateUserName(String newName) async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+  // Simulate success
+  return true;
+}
+
+Future<bool> mockUpdateUserPassword(String newPassword) async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+  // Simulate success
+  return true;
+}
+
+Future<bool> mockLogout() async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+  // Simulate success
+  return true;
+}

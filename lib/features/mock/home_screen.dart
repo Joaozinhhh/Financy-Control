@@ -20,6 +20,10 @@ class HomeScreen extends StatelessWidget {
               child: const Text('Transactions'),
             ),
             TextButton(
+              onPressed: () => context.push(Screen.profile.location),
+              child: const Text('Profile'),
+            ),
+            TextButton(
               onPressed: () => context.goNamed(Screen.root.name),
               child: const Text('Logout'),
             ),

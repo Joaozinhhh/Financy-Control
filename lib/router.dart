@@ -4,6 +4,7 @@ import 'package:financy_control/features/mock/mock_cli_screen.dart';
 import 'package:financy_control/features/onboarding/auth/reset_password/reset_password_view.dart';
 import 'package:financy_control/features/onboarding/auth/sign_in/sign_in_view.dart';
 import 'package:financy_control/features/onboarding/auth/sign_up/sign_up_view.dart';
+import 'package:financy_control/features/profile/profile_view.dart';
 import 'package:financy_control/features/transactions/transactions_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -27,10 +28,9 @@ enum Screen {
   statistics('statistics', parent: Screen.home),
   reports('reports', parent: Screen.statistics),
 
-  profile('profile', parent: Screen.home),
+  profile('/profile'),
   updateUserName('update-username', parent: Screen.profile),
-  updatePassword('update-password', parent: Screen.profile),
-  deleteAccount('delete-account', parent: Screen.profile);
+  updatePassword('update-password', parent: Screen.profile);
 
   const Screen(
     this._path, {
@@ -107,7 +107,7 @@ final router = GoRouter(
     GoRoute(
       path: Screen.profile._path,
       name: Screen.profile.name,
-      builder: (context, state) => Placeholder(),
+      builder: (context, state) => ProfileView(),
       routes: [
         GoRoute(
           path: Screen.updateUserName._path,
@@ -117,11 +117,6 @@ final router = GoRouter(
         GoRoute(
           path: Screen.updatePassword._path,
           name: Screen.updatePassword.name,
-          builder: (context, state) => Placeholder(),
-        ),
-        GoRoute(
-          path: Screen.deleteAccount._path,
-          name: Screen.deleteAccount.name,
           builder: (context, state) => Placeholder(),
         ),
       ],
