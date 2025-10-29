@@ -1,7 +1,7 @@
 import 'package:financy_control/core/extensions.dart';
-import 'package:flutter/foundation.dart';
-import 'package:financy_control/services/mock_repository/mock_repository.dart';
 import 'package:financy_control/core/models/transaction_model.dart';
+import 'package:financy_control/services/mock_repository/mock_repository.dart';
+import 'package:flutter/foundation.dart';
 
 class TransactionsViewModel extends ChangeNotifier {
   List<TransactionModel> _transactions = [];

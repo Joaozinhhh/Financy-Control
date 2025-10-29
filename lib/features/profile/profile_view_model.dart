@@ -1,6 +1,6 @@
 import 'package:financy_control/core/extensions.dart';
-import 'package:flutter/material.dart';
 import 'package:financy_control/services/mock_repository/mock_repository.dart';
+import 'package:flutter/material.dart';
 
 class ProfileViewModel extends ChangeNotifier {
   String _name = '';

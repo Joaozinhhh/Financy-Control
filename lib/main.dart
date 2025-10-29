@@ -1,5 +1,6 @@
 import 'package:financy_control/router.dart';
 import 'package:flutter/material.dart';
+
 import 'locator.dart';
 
 void main() async {

@@ -1,6 +1,6 @@
+import 'package:financy_control/features/profile/profile_view_model.dart';
 import 'package:financy_control/router.dart';
 import 'package:flutter/material.dart';
-import 'package:financy_control/features/profile/profile_view_model.dart';
 import 'package:go_router/go_router.dart';
 
 class ProfileView extends StatefulWidget {

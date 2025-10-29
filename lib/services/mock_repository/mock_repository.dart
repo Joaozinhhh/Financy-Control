@@ -19,7 +19,10 @@ enum Endpoints {
   const Endpoints(this.path);
 }
 
+const Duration mockNetworkDelay = Duration(seconds: 1);
+
 final mockClient = MockClient((request) async {
+  await Future.delayed(mockNetworkDelay);
   if (request.url.path == Endpoints.signIn.path && request.method == 'POST') {
     final body = request.body;
     if (body.contains('email') && body.contains('password')) {
@@ -99,7 +102,6 @@ final mockClient = MockClient((request) async {
 });
 
 Future<UserModel> mockCreateUser(UserInputModel input) async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   final response = await mockClient.post(
     Uri.parse(Endpoints.signUp.path),
     body: input.toJson(),
@@ -109,12 +111,12 @@ Future<UserModel> mockCreateUser(UserInputModel input) async {
   }
 
   final user = UserModel.fromJson(jsonDecode(response.body));
+  _currentUser = user;
 
   return user;
 }
 
 Future<UserModel> mockLogin(UserInputModel input) async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   final response = await mockClient.post(
     Uri.parse(Endpoints.signIn.path),
     body: input.toJson(),
@@ -124,11 +126,13 @@ Future<UserModel> mockLogin(UserInputModel input) async {
     throw Exception('Failed to log in');
   }
 
-  return UserModel.fromJson(jsonDecode(response.body));
+  final user = UserModel.fromJson(jsonDecode(response.body));
+  _currentUser = user;
+
+  return user;
 }
 
 Future<bool> mockForgotPassword(String email) async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   final response = await mockClient.post(
     Uri.parse(Endpoints.forgotPassword.path),
     body: {'email': email},
@@ -142,7 +146,6 @@ final List<TransactionModel> _inMemoryTransactions = [];
 Future<TransactionModel> mockCreateTransaction(
   TransactionInputModel input,
 ) async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   final transaction = TransactionModel(
     id: DateTime.now().millisecondsSinceEpoch.toString(),
     amount: input.amount ?? 0.0,
@@ -158,7 +161,6 @@ Future<TransactionModel> mockUpdateTransaction(
   String id,
   TransactionInputModel input,
 ) async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   final index = _inMemoryTransactions.indexWhere((t) => t.id == id);
   if (index == -1) {
     throw Exception('Transaction not found');
@@ -175,7 +177,6 @@ Future<TransactionModel> mockUpdateTransaction(
 }
 
 Future<bool> mockDeleteTransaction(String id) async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   final index = _inMemoryTransactions.indexWhere((t) => t.id == id);
   if (index == -1) {
     throw Exception('Transaction not found');
@@ -188,8 +189,6 @@ Future<List<TransactionModel>> mockGetTransactions({
   DateTime? startDate,
   DateTime? endDate,
 }) async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
-
   // Filter transactions by date range if provided
   List<TransactionModel> filteredTransactions = _inMemoryTransactions;
   if (startDate != null) {
@@ -215,7 +214,6 @@ Future<List<TransactionModel>> mockGetTransactions({
 }
 
 Future<Map<String, String>> mockGetUserProfile() async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   return {
     'name': 'Test User',
     'email': 'test@example.com',
@@ -224,19 +222,36 @@ Future<Map<String, String>> mockGetUserProfile() async {
 }
 
 Future<bool> mockUpdateUserName(String newName) async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   // Simulate success
   return true;
 }
 
 Future<bool> mockUpdateUserPassword(String newPassword) async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   // Simulate success
   return true;
 }
 
 Future<bool> mockLogout() async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
   // Simulate success
+  _currentUser = null;
   return true;
+}
+
+Future<double> mockGetBalance() async {
+  // Simulate balance calculation
+  return _inMemoryTransactions.fold<double>(
+    0.0,
+    (sum, transaction) => sum + transaction.amount,
+  );
+}
+
+UserModel? _currentUser;
+
+Future<UserModel?> mockCheckAuthStatus() async {
+  await Future.delayed(mockNetworkDelay);
+  return _currentUser;
+}
+
+UserModel? mockGetCurrentUser() {
+  return _currentUser;
 }

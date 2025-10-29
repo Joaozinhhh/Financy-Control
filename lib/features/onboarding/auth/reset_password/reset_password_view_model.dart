@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:financy_control/services/mock_repository/mock_repository.dart';
+import 'package:flutter/foundation.dart';
 
 class ResetPasswordViewModel extends ChangeNotifier {
   String _email = '';

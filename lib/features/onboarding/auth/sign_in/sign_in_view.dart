@@ -1,5 +1,7 @@
+import 'package:financy_control/router.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import 'sign_in_view_model.dart';
 
 class SignInView extends StatefulWidget {
@@ -60,7 +62,7 @@ class _SignInViewState extends State<SignInView> {
                       final screen = await _viewModel.signIn();
                       if (screen != null) {
                         if (!context.mounted) return;
-                        context.push(screen.location);
+                        context.go(screen.location);
                       } else if (_viewModel.errorMessage != null) {
                         if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -75,6 +77,14 @@ class _SignInViewState extends State<SignInView> {
                       color: Colors.white,
                     )
                   : const Text('Sign In'),
+            ),
+            // dont have an account? sign up
+            TextButton(
+              onPressed: () {
+                if (!context.mounted) return;
+                context.go(Screen.signUp.location);
+              },
+              child: const Text("Don't have an account? Sign Up"),
             ),
           ],
         ),

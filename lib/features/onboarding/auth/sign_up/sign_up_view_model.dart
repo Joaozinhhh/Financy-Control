@@ -1,7 +1,7 @@
-import 'package:financy_control/router.dart';
-import 'package:flutter/foundation.dart';
-import 'package:financy_control/services/mock_repository/mock_repository.dart';
 import 'package:financy_control/core/models/user_model.dart';
+import 'package:financy_control/router.dart';
+import 'package:financy_control/services/mock_repository/mock_repository.dart';
+import 'package:flutter/foundation.dart';
 
 class SignUpViewModel extends ChangeNotifier {
   String _name = '';

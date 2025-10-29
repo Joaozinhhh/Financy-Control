@@ -1,10 +1,11 @@
 import 'package:financy_control/core/extensions.dart';
+import 'package:financy_control/core/models/transaction_model.dart';
 import 'package:financy_control/router.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:financy_control/core/models/transaction_model.dart';
-import 'transactions_view_model.dart';
 import 'package:intl/intl.dart';
+
+import 'transactions_view_model.dart';
 
 class TransactionsView extends StatefulWidget {
   const TransactionsView({super.key});
