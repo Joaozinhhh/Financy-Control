@@ -3,7 +3,6 @@ import 'package:financy_control/router.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:financy_control/core/models/transaction_model.dart';
-import 'package:financy_control/services/mock_repository/mock_repository.dart';
 import 'transactions_view_model.dart';
 import 'package:intl/intl.dart';
 
@@ -40,30 +39,28 @@ class _TransactionsViewState extends State<TransactionsView> {
 
   void _updateDateRange(String range) {
     final now = DateTime.now();
-    setState(() {
-      _selectedRange = range;
-      switch (range) {
-        case 'Day':
-          _currentRangeDisplay = DateFormat.yMMMd().format(now);
-          _viewModel.setStartDate(DateTime(now.year, now.month, now.day));
-          _viewModel.setEndDate(
-            DateTime(now.year, now.month, now.day, 23, 59, 59),
-          );
-          break;
-        case 'Month':
-          _currentRangeDisplay = DateFormat.yMMMM().format(now);
-          _viewModel.setStartDate(DateTime(now.year, now.month, 1));
-          _viewModel.setEndDate(
-            DateTime(now.year, now.month + 1, 0, 23, 59, 59),
-          );
-          break;
-        case 'Year':
-          _currentRangeDisplay = DateFormat.y().format(now);
-          _viewModel.setStartDate(DateTime(now.year, 1, 1));
-          _viewModel.setEndDate(DateTime(now.year, 12, 31, 23, 59, 59));
-          break;
-      }
-    });
+    _selectedRange = range;
+    switch (range) {
+      case 'Day':
+        _currentRangeDisplay = DateFormat.yMMMd().format(now);
+        _viewModel.setStartDate(DateTime(now.year, now.month, now.day));
+        _viewModel.setEndDate(
+          DateTime(now.year, now.month, now.day, 23, 59, 59),
+        );
+        break;
+      case 'Month':
+        _currentRangeDisplay = DateFormat.yMMMM().format(now);
+        _viewModel.setStartDate(DateTime(now.year, now.month, 1));
+        _viewModel.setEndDate(
+          DateTime(now.year, now.month + 1, 0, 23, 59, 59),
+        );
+        break;
+      case 'Year':
+        _currentRangeDisplay = DateFormat.y().format(now);
+        _viewModel.setStartDate(DateTime(now.year, 1, 1));
+        _viewModel.setEndDate(DateTime(now.year, 12, 31, 23, 59, 59));
+        break;
+    }
     _viewModel.fetchTransactions();
   }
 
@@ -218,15 +215,12 @@ class TransactionFormView extends StatefulWidget {
   State<TransactionFormView> createState() => _TransactionFormViewState();
 }
 
-class _TransactionFormViewState extends State<TransactionFormView> {
-  final _formKey = GlobalKey<FormState>();
+class _TransactionFormViewState extends State<TransactionFormView> with SingleTickerProviderStateMixin {
   double? _amount;
   String? _description;
-  DateTime? _date;
-  bool _isLoading = false;
-  String? _errorMessage;
-  TransactionCategory _category = ExpenseCategory.other;
-  TransactionCategory _selectedCategory = ExpenseCategory.other;
+  final TransactionsViewModel _viewModel = TransactionsViewModel();
+  final ValueNotifier<bool> _validatorNotifier = ValueNotifier(false);
+  late final TabController _tabController;
 
   @override
   void initState() {
@@ -234,61 +228,33 @@ class _TransactionFormViewState extends State<TransactionFormView> {
     if (widget.transaction != null) {
       _amount = widget.transaction!.amount;
       _description = widget.transaction!.description;
-      _date = widget.transaction!.date;
-      _category = widget.transaction!.category;
+      _viewModel.setSelectedDate(widget.transaction!.date);
+      _viewModel.setSelectedCategory(widget.transaction!.category);
     }
-  }
-
-  Future<void> _pickDate() async {
-    final selectedDate = await showDatePicker(
-      context: context,
-      initialDate: _date ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+    _tabController = TabController(length: 2, vsync: this);
+    _viewModel.setTabIndex(
+      widget.transaction != null
+          ? widget.transaction!.category.income
+              ? 0
+              : 1
+          : 0,
     );
-    if (selectedDate != null) {
-      setState(() {
-        _date = selectedDate;
-      });
-    }
   }
 
-  Future<void> _saveTransaction() async {
-    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
-      return;
-    }
-    _formKey.currentState?.save();
+  void _processValidationChange() {
+    final isValid =
+        _amount != null &&
+        _description != null &&
+        _description!.isNotEmpty &&
+        _viewModel.selectedDate.value != null;
+    _validatorNotifier.value = isValid;
+  }
 
-    setState(() => _isLoading = true);
-    TransactionModel? transaction;
-    try {
-      if (widget.transaction == null) {
-        transaction = await mockCreateTransaction(
-          TransactionInputModel(
-            amount: _amount,
-            description: _description!,
-            date: _date!,
-            category: _category,
-          ),
-        );
-      } else {
-        transaction = await mockUpdateTransaction(
-          widget.transaction!.id,
-          TransactionInputModel(
-            amount: _amount,
-            description: _description!,
-            date: _date!,
-            category: _category,
-          ),
-        );
-      }
-      if (!mounted) return;
-      context.pop(transaction);
-    } catch (e) {
-      setState(() => _errorMessage = 'Failed to save transaction.');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+  @override
+  void dispose() {
+    _validatorNotifier.dispose();
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -300,129 +266,183 @@ class _TransactionFormViewState extends State<TransactionFormView> {
               ? 'Create Transaction'
               : 'Edit Transaction',
         ),
+        bottom: TabBar(
+          controller: _tabController,
+          onTap: (index) {
+            _viewModel.setTabIndex(index);
+            _viewModel.setSelectedCategory(
+              index == 0
+                  ? IncomeCategory.other
+                  : ExpenseCategory.other,
+            );
+          },
+          tabs: const [
+            Tab(text: 'Income'),
+            Tab(text: 'Expense'),
+          ],
+        ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
+      body: DefaultTabController(
+        length: 2,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TextFormField(
-                      initialValue: _amount?.toString(),
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Amount'),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Enter an amount'
-                          : null,
-                      onSaved: (value) => _amount = double.tryParse(value!),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    initialValue: _amount?.toString(),
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Amount'),
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Enter an amount'
+                        : null,
+                    onChanged: (value) {
+                      _amount = double.tryParse(value);
+                      _processValidationChange();
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    initialValue: _description,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
                     ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      initialValue: _description,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                      ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Enter a description'
-                          : null,
-                      onSaved: (value) => _description = value,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _date == null
-                                ? 'No date selected'
-                                : '${_date!.toLocal()}',
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: _pickDate,
-                          child: const Text('Pick Date'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 16),
-                    RadioGroup<TransactionCategory>(
-                      groupValue: _selectedCategory,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCategory = value!;
-                        });
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('Income'),
-                          Radio<TransactionCategory>(
-                            value: IncomeCategory.other,
-                          ),
-                          const Text('Expense'),
-                          Radio<TransactionCategory>(
-                            value: ExpenseCategory.other,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Row(
-                      children: [
-                        const Text('Category: '),
-                        const SizedBox(width: 8),
-                        PopupMenuButton<TransactionCategory>(
-                          initialValue: _category,
-                          onSelected: (value) {
-                            setState(() {
-                              _category = value;
-                            });
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Enter a description'
+                        : null,
+                    onChanged: (value) {
+                      _description = value;
+                      _processValidationChange();
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ValueListenableBuilder(
+                          valueListenable: _viewModel.selectedDate,
+                          builder: (context, value, child) {
+                            return Text(
+                              value == null
+                                  ? 'No date selected'
+                                  : '${value.toLocal()}',
+                            );
                           },
-                          itemBuilder: (context) {
-                            List<TransactionCategory> values = _category.income
-                                ? IncomeCategory.values
-                                : ExpenseCategory.values;
-                            return values
-                                .map(
-                                  (c) => PopupMenuItem<TransactionCategory>(
-                                    value: c,
-                                    child: Text(c.description.capitalize()),
-                                  ),
-                                )
-                                .toList();
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(_category.description.capitalize()),
-                                const Icon(Icons.arrow_drop_down),
-                              ],
-                            ),
-                          ),
                         ),
-                      ],
-                    ),
-                    if (_errorMessage != null)
-                      Text(
-                        _errorMessage!,
-                        style: const TextStyle(color: Colors.red),
                       ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _saveTransaction,
-                      child: const Text('Save'),
+                      TextButton(
+                        onPressed: () async {
+                          final pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate:
+                                _viewModel.selectedDate.value ?? DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+                          if (pickedDate != null) {
+                            _viewModel.setSelectedDate(pickedDate);
+                          }
+                          _processValidationChange();
+                        },
+                        child: const Text('Pick Date'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 16),
+                  Row(
+                    children: [
+                      const Text('Category: '),
+                      const SizedBox(width: 8),
+                      ValueListenableBuilder(
+                        valueListenable: _viewModel.selectedCategory,
+                        builder: (context, value, child) {
+                          return PopupMenuButton<TransactionCategory>(
+                            initialValue: value,
+                            onSelected: (value) {
+                              _viewModel.setSelectedCategory(value);
+                              _processValidationChange();
+                            },
+                            itemBuilder: (context) {
+                              List<TransactionCategory> values = value.income
+                                  ? IncomeCategory.values
+                                  : ExpenseCategory.values;
+                              return values
+                                  .map(
+                                    (c) => PopupMenuItem<TransactionCategory>(
+                                      value: c,
+                                      child: Text(c.description.capitalize()),
+                                    ),
+                                  )
+                                  .toList();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(value.description.capitalize()),
+                                  const Icon(Icons.arrow_drop_down),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  if (_viewModel.errorMessage != null)
+                    Text(
+                      _viewModel.errorMessage!,
+                      style: const TextStyle(color: Colors.red),
                     ),
-                  ],
-                ),
+                  const SizedBox(height: 16),
+                  ValueListenableBuilder(
+                    valueListenable: _validatorNotifier,
+                    builder: (context, value, child) {
+                      return ElevatedButton(
+                        onPressed: value
+                            ? () {
+                                if (widget.transaction == null) {
+                                  _viewModel.createTransaction(
+                                    TransactionInputModel(
+                                      amount: _amount,
+                                      description: _description!,
+                                      date: _viewModel.selectedDate.value!,
+                                      category:
+                                          _viewModel.selectedCategory.value,
+                                    ),
+                                  );
+                                } else {
+                                  _viewModel.updateTransaction(
+                                    widget.transaction!.id,
+                                    TransactionInputModel(
+                                      amount: _amount,
+                                      description: _description!,
+                                      date: _viewModel.selectedDate.value!,
+                                      category:
+                                          _viewModel.selectedCategory.value,
+                                    ),
+                                  );
+                                }
+                                context.pop(true);
+                              }
+                            : null,
+                        child: const Text('Save'),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 }
