@@ -5,6 +5,7 @@ import 'package:financy_control/features/onboarding/auth/sign_in/sign_in_view.da
 import 'package:financy_control/features/onboarding/auth/sign_up/sign_up_view.dart';
 import 'package:financy_control/features/onboarding/splash/splash_view.dart';
 import 'package:financy_control/features/profile/profile_view.dart';
+import 'package:financy_control/features/reports/reports_view.dart';
 import 'package:financy_control/features/statistics/statistics_view.dart';
 import 'package:financy_control/features/transactions/transactions_view.dart';
 import 'package:flutter/material.dart';
@@ -99,7 +100,7 @@ final router = GoRouter(
             GoRoute(
               path: Screen.reports._path,
               name: Screen.reports.name,
-              builder: (context, state) => const Placeholder(),
+              builder: (context, state) => const ReportsView(),
             ),
           ],
         ),

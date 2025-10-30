@@ -71,6 +71,14 @@ class _ProfileViewState extends State<ProfileView> {
               }
             },
           ),
+          // access reports
+          ListTile(
+            leading: const Icon(Icons.list_alt),
+            title: const Text('Access Reports'),
+            onTap: () async {
+              context.push(Screen.reports.location);
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.lock),
             title: const Text('Change Password'),

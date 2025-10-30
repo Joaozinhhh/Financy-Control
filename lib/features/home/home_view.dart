@@ -29,6 +29,10 @@ class _HomeViewState extends State<HomeView> {
               child: const Text('Statistics'),
             ),
             TextButton(
+              onPressed: () => context.push(Screen.reports.location),
+              child: const Text('Reports'),
+            ),
+            TextButton(
               onPressed: () => context.push(Screen.profile.location),
               child: const Text('Profile'),
             ),
