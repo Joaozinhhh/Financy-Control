@@ -35,16 +35,7 @@ class _HomeViewState extends State<HomeView> {
     final currency = NumberFormat.simpleCurrency(locale: Localizations.localeOf(context).toString());
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.list),
-            onPressed: () => context.push(Screen.transactions.location),
-            tooltip: 'All transactions',
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Home')),
       body: RefreshIndicator(
         onRefresh: () => _viewModel.load(),
         child: SingleChildScrollView(

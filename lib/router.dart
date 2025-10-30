@@ -1,4 +1,5 @@
 import 'package:financy_control/core/models/transaction_model.dart';
+import 'package:financy_control/features/home/home_shell.dart';
 import 'package:financy_control/features/home/home_view.dart';
 import 'package:financy_control/features/onboarding/auth/reset_password/reset_password_view.dart';
 import 'package:financy_control/features/onboarding/auth/sign_in/sign_in_view.dart';
@@ -30,7 +31,7 @@ enum Screen {
   statistics('statistics', parent: Screen.home),
   reports('reports', parent: Screen.statistics),
 
-  profile('/profile'),
+  profile('profile', parent: Screen.home),
   updateUserName('update-username', parent: Screen.profile),
   updatePassword('update-password', parent: Screen.profile);
 
@@ -63,66 +64,7 @@ final router = GoRouter(
       name: Screen.splash.name,
       builder: (context, state) => const Placeholder(),
     ),
-    GoRoute(
-      path: Screen.home._path,
-      name: Screen.home.name,
-      builder: (context, state) => const HomeView(),
-      routes: [
-        GoRoute(
-          path: Screen.transactions._path,
-          name: Screen.transactions.name,
-          builder: (context, state) => const TransactionsView(),
-          routes: [
-            GoRoute(
-              path: Screen.transactionCreate._path,
-              name: Screen.transactionCreate.name,
-              builder: (context, state) => const TransactionFormView(),
-            ),
-            GoRoute(
-              path: Screen.transactionEdit._path,
-              name: Screen.transactionEdit.name,
-              builder: (context, state) => TransactionFormView(
-                transaction: state.extra as TransactionModel,
-              ),
-            ),
-          ],
-        ),
-        GoRoute(
-          path: Screen.categories._path,
-          name: Screen.categories.name,
-          builder: (context, state) => const Placeholder(),
-        ),
-        GoRoute(
-          path: Screen.statistics._path,
-          name: Screen.statistics.name,
-          builder: (context, state) => const StatisticsView(),
-          routes: [
-            GoRoute(
-              path: Screen.reports._path,
-              name: Screen.reports.name,
-              builder: (context, state) => const ReportsView(),
-            ),
-          ],
-        ),
-      ],
-    ),
-    GoRoute(
-      path: Screen.profile._path,
-      name: Screen.profile.name,
-      builder: (context, state) => const ProfileView(),
-      routes: [
-        GoRoute(
-          path: Screen.updateUserName._path,
-          name: Screen.updateUserName.name,
-          builder: (context, state) => const Placeholder(),
-        ),
-        GoRoute(
-          path: Screen.updatePassword._path,
-          name: Screen.updatePassword.name,
-          builder: (context, state) => const Placeholder(),
-        ),
-      ],
-    ),
+    // Authentication routes
     GoRoute(
       path: Screen.signUp._path,
       name: Screen.signUp.name,
@@ -137,6 +79,93 @@ final router = GoRouter(
       path: Screen.resetPassword._path,
       name: Screen.resetPassword.name,
       builder: (context, state) => const ResetPasswordView(),
+    ),
+    // Bottom navigation shell
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) =>
+          HomeShell(navigationShell: navigationShell),
+      branches: [
+        // Home branch
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: Screen.home._path, // '/home'
+              name: Screen.home.name,
+              builder: (context, state) => const HomeView(),
+              routes: [
+                GoRoute(
+                  path: Screen.categories._path,
+                  name: Screen.categories.name,
+                  builder: (context, state) => const Placeholder(),
+                ),
+              ],
+            ),
+          ],
+        ),
+        // Statistics branch
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: Screen.statistics.location, // '/home/statistics'
+              name: Screen.statistics.name,
+              builder: (context, state) => const StatisticsView(),
+              routes: [
+                GoRoute(
+                  path: Screen.reports._path,
+                  name: Screen.reports.name,
+                  builder: (context, state) => const ReportsView(),
+                ),
+              ],
+            ),
+          ],
+        ),
+        // Transactions branch
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: Screen.transactions.location, // '/home/transactions'
+              name: Screen.transactions.name,
+              builder: (context, state) => const TransactionsView(),
+              routes: [
+                GoRoute(
+                  path: Screen.transactionCreate._path,
+                  name: Screen.transactionCreate.name,
+                  builder: (context, state) => const TransactionFormView(),
+                ),
+                GoRoute(
+                  path: Screen.transactionEdit._path,
+                  name: Screen.transactionEdit.name,
+                  builder: (context, state) => TransactionFormView(
+                    transaction: state.extra as TransactionModel,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        // Profile branch
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: Screen.profile.location, // '/home/profile'
+              name: Screen.profile.name,
+              builder: (context, state) => const ProfileView(),
+              routes: [
+                GoRoute(
+                  path: Screen.updateUserName._path,
+                  name: Screen.updateUserName.name,
+                  builder: (context, state) => const Placeholder(),
+                ),
+                GoRoute(
+                  path: Screen.updatePassword._path,
+                  name: Screen.updatePassword.name,
+                  builder: (context, state) => const Placeholder(),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
     ),
   ],
 );
