@@ -15,6 +15,18 @@ class CategoryStatistic {
   });
 }
 
+class DailyStatistic {
+  final DateTime date;
+  final double income;
+  final double expense;
+
+  DailyStatistic({
+    required this.date,
+    required this.income,
+    required this.expense,
+  });
+}
+
 class StatisticsViewModel extends ChangeNotifier {
   List<TransactionModel> _transactions = [];
   bool _isLoading = false;
@@ -79,6 +91,46 @@ class StatisticsViewModel extends ChangeNotifier {
       );
     }).toList()
       ..sort((a, b) => b.total.compareTo(a.total));
+  }
+
+  List<DailyStatistic> get dailyStatistics {
+    if (_startDate == null || _endDate == null) return [];
+    
+    final Map<DateTime, DailyStatistic> grouped = {};
+    
+    for (final transaction in _transactions) {
+      final date = DateTime(
+        transaction.date.year,
+        transaction.date.month,
+        transaction.date.day,
+      );
+      
+      if (!grouped.containsKey(date)) {
+        grouped[date] = DailyStatistic(date: date, income: 0.0, expense: 0.0);
+      }
+      
+      if (transaction.category.income) {
+        grouped[date] = DailyStatistic(
+          date: date,
+          income: grouped[date]!.income + transaction.amount,
+          expense: grouped[date]!.expense,
+        );
+      } else if (transaction.category.expense) {
+        grouped[date] = DailyStatistic(
+          date: date,
+          income: grouped[date]!.income,
+          expense: grouped[date]!.expense + transaction.amount.abs(),
+        );
+      }
+    }
+    
+    return grouped.values.toList()..sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  List<TransactionModel> get topTransactions {
+    final sorted = List<TransactionModel>.from(_transactions)
+      ..sort((a, b) => b.amount.abs().compareTo(a.amount.abs()));
+    return sorted.take(5).toList();
   }
 
   void setStartDate(DateTime? date) {

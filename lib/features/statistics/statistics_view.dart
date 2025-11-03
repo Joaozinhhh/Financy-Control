@@ -1,5 +1,6 @@
 import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/features/statistics/statistics_view_model.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -39,14 +40,24 @@ class _StatisticsViewState extends State<StatisticsView> {
     final now = DateTime.now();
     _selectedRange = range;
     switch (range) {
+      case 'Day':
+        _currentRangeDisplay = DateFormat.yMMMd().format(now);
+        _viewModel.setStartDate(DateTime(now.year, now.month, now.day));
+        _viewModel.setEndDate(
+          DateTime(now.year, now.month, now.day, 23, 59, 59),
+        );
+        break;
       case 'Week':
         final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+        final endOfWeek = startOfWeek.add(const Duration(days: 6));
         _currentRangeDisplay =
-            '${DateFormat.MMMd().format(startOfWeek)} - ${DateFormat.MMMd().format(now)}';
+            '${DateFormat.MMMd().format(startOfWeek)} - ${DateFormat.MMMd().format(endOfWeek)}';
         _viewModel.setStartDate(
           DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day),
         );
-        _viewModel.setEndDate(DateTime(now.year, now.month, now.day, 23, 59, 59));
+        _viewModel.setEndDate(
+          DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day, 23, 59, 59),
+        );
         break;
       case 'Month':
         _currentRangeDisplay = DateFormat.yMMMM().format(now);
@@ -68,6 +79,17 @@ class _StatisticsViewState extends State<StatisticsView> {
     if (startDate == null || endDate == null) return;
 
     switch (_selectedRange) {
+      case 'Day':
+        final offset = direction == 'previous' ? -1 : 1;
+        final newDate = startDate.add(Duration(days: offset));
+        _viewModel.setStartDate(
+          DateTime(newDate.year, newDate.month, newDate.day),
+        );
+        _viewModel.setEndDate(
+          DateTime(newDate.year, newDate.month, newDate.day, 23, 59, 59),
+        );
+        _currentRangeDisplay = DateFormat.yMMMd().format(newDate);
+        break;
       case 'Week':
         final offset = direction == 'previous' ? -7 : 7;
         final newStart = startDate.add(Duration(days: offset));
@@ -110,176 +132,220 @@ class _StatisticsViewState extends State<StatisticsView> {
       body: _viewModel.isLoading
           ? const Center(child: CircularProgressIndicator())
           : _viewModel.errorMessage != null
-              ? Center(child: Text('Error: ${_viewModel.errorMessage}'))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+          ? Center(child: Text('Error: ${_viewModel.errorMessage}'))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Range selector buttons
+                  Row(
                     children: [
-                      // Date range selector
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back),
-                            onPressed: () => _navigateDateRange('previous'),
-                          ),
-                          Flexible(
-                            child: PopupMenuButton<String>(
-                              onSelected: _updateDateRange,
-                              itemBuilder: (context) => const [
-                                PopupMenuItem(
-                                  value: 'Week',
-                                  child: Text('Week'),
-                                ),
-                                PopupMenuItem(
-                                  value: 'Month',
-                                  child: Text('Month'),
-                                ),
-                                PopupMenuItem(
-                                  value: 'Year',
-                                  child: Text('Year'),
-                                ),
-                              ],
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    _currentRangeDisplay,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium,
-                                  ),
-                                  const Icon(Icons.arrow_drop_down),
-                                ],
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.arrow_forward),
-                            onPressed: () => _navigateDateRange('next'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Summary cards
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _SummaryCard(
-                              title: 'Income',
-                              amount: _viewModel.totalIncome,
-                              color: Colors.green,
-                              icon: Icons.arrow_upward,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _SummaryCard(
-                              title: 'Expenses',
-                              amount: _viewModel.totalExpense,
-                              color: Colors.red,
-                              icon: Icons.arrow_downward,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      _SummaryCard(
-                        title: 'Net Balance',
-                        amount: _viewModel.netBalance,
-                        color: _viewModel.netBalance >= 0
-                            ? Colors.blue
-                            : Colors.orange,
-                        icon: Icons.account_balance_wallet,
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Transaction count
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Total Transactions',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              Text(
-                                '${_viewModel.transactionCount}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
+                      Expanded(
+                        child: _RangeButton(
+                          label: 'Day',
+                          isSelected: _selectedRange == 'Day',
+                          onTap: () => _updateDateRange('Day'),
                         ),
                       ),
-                      const SizedBox(height: 24),
-
-                      // Income by category
-                      if (_viewModel.incomeByCategory.isNotEmpty) ...[
-                        Text(
-                          'Income by Category',
-                          style: Theme.of(context).textTheme.titleLarge,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _RangeButton(
+                          label: 'Week',
+                          isSelected: _selectedRange == 'Week',
+                          onTap: () => _updateDateRange('Week'),
                         ),
-                        const SizedBox(height: 12),
-                        ..._viewModel.incomeByCategory.map(
-                          (stat) => _CategoryStatisticTile(
-                            statistic: stat,
-                            totalAmount: _viewModel.totalIncome,
-                            color: Colors.green,
-                          ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _RangeButton(
+                          label: 'Month',
+                          isSelected: _selectedRange == 'Month',
+                          onTap: () => _updateDateRange('Month'),
                         ),
-                        const SizedBox(height: 24),
-                      ],
-
-                      // Expenses by category
-                      if (_viewModel.expenseByCategory.isNotEmpty) ...[
-                        Text(
-                          'Expenses by Category',
-                          style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _RangeButton(
+                          label: 'Year',
+                          isSelected: _selectedRange == 'Year',
+                          onTap: () => _updateDateRange('Year'),
                         ),
-                        const SizedBox(height: 12),
-                        ..._viewModel.expenseByCategory.map(
-                          (stat) => _CategoryStatisticTile(
-                            statistic: stat,
-                            totalAmount: _viewModel.totalExpense,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ],
-
-                      // Empty state
-                      if (_viewModel.transactionCount == 0)
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(32),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.bar_chart,
-                                  size: 64,
-                                  color: Colors.grey[400],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No transactions in this period',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(color: Colors.grey[600]),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                      ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 16),
+
+                  // Date navigation
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => _navigateDateRange('previous'),
+                      ),
+                      Text(
+                        _currentRangeDisplay,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_forward),
+                        onPressed: () => _navigateDateRange('next'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Income and Expense cards
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _SummaryCard(
+                          title: 'Income',
+                          amount: _viewModel.totalIncome,
+                          color: Colors.green,
+                          icon: Icons.arrow_upward,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _SummaryCard(
+                          title: 'Expenses',
+                          amount: _viewModel.totalExpense,
+                          color: Colors.red,
+                          icon: Icons.arrow_downward,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Chart section
+                  if (_viewModel.transactionCount > 0) ...[
+                    Text(
+                      'Income vs Expense Trend',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 12),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: SizedBox(
+                          height: 250,
+                          child: _LineChartWidget(
+                            dailyStats: _viewModel.dailyStatistics,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Top Transactions
+                  if (_viewModel.topTransactions.isNotEmpty) ...[
+                    Text(
+                      'Top Transactions',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 12),
+                    ..._viewModel.topTransactions.map(
+                      (transaction) => Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: transaction.category.income
+                                ? Colors.green.withValues(alpha: 0.2)
+                                : Colors.red.withValues(alpha: 0.2),
+                            child: Icon(
+                              transaction.category.income
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
+                              color: transaction.category.income
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                          ),
+                          title: Text(transaction.description),
+                          subtitle: Text(
+                            '${transaction.category.description.capitalize()} • ${DateFormat.MMMd().format(transaction.date)}',
+                          ),
+                          trailing: Text(
+                            '\$${transaction.amount.abs().toStringAsFixed(2)}',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: transaction.category.income
+                                      ? Colors.green
+                                      : Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  // Empty state
+                  if (_viewModel.transactionCount == 0)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.bar_chart,
+                              size: 64,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No transactions in this period',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(color: Colors.grey[600]),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+    );
+  }
+}
+
+class _RangeButton extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _RangeButton({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Colors.grey[200],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black87,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -300,6 +366,9 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -319,9 +388,9 @@ class _SummaryCard extends StatelessWidget {
             Text(
               '\$${amount.toStringAsFixed(2)}',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -330,72 +399,173 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _CategoryStatisticTile extends StatelessWidget {
-  final CategoryStatistic statistic;
-  final double totalAmount;
-  final Color color;
+class _LineChartWidget extends StatelessWidget {
+  final List<DailyStatistic> dailyStats;
 
-  const _CategoryStatisticTile({
-    required this.statistic,
-    required this.totalAmount,
-    required this.color,
-  });
+  const _LineChartWidget({required this.dailyStats});
 
   @override
   Widget build(BuildContext context) {
-    final percentage = totalAmount > 0
-        ? (statistic.total / totalAmount * 100)
-        : 0.0;
+    if (dailyStats.isEmpty) {
+      return const Center(child: Text('No data available'));
+    }
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  statistic.category.description.capitalize(),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                Text(
-                  '\$${statistic.total.toStringAsFixed(2)}',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: color,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: LinearProgressIndicator(
-                    value: percentage / 100,
-                    backgroundColor: color.withValues(alpha: 0.2),
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
+    final incomeSpots = dailyStats.asMap().entries.map((entry) {
+      return FlSpot(entry.key.toDouble(), entry.value.income);
+    }).toList();
+
+    final expenseSpots = dailyStats.asMap().entries.map((entry) {
+      return FlSpot(entry.key.toDouble(), entry.value.expense);
+    }).toList();
+
+    final maxY =
+        dailyStats
+            .map(
+              (stat) => stat.income > stat.expense ? stat.income : stat.expense,
+            )
+            .reduce((a, b) => a > b ? a : b) +
+        10;
+
+    return LineChart(
+      LineChartData(
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: true,
+          horizontalInterval: maxY / 5,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: Colors.grey.withValues(alpha: 0.2),
+              strokeWidth: 1,
+            );
+          },
+          getDrawingVerticalLine: (value) {
+            return FlLine(
+              color: Colors.grey.withValues(alpha: 0.2),
+              strokeWidth: 1,
+            );
+          },
+        ),
+        titlesData: FlTitlesData(
+          show: true,
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,
+              interval: dailyStats.length > 10 ? dailyStats.length / 5 : 1,
+              getTitlesWidget: (value, meta) {
+                final index = value.toInt();
+                if (index < 0 || index >= dailyStats.length) {
+                  return const Text('');
+                }
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    DateFormat.MMMd().format(dailyStats[index].date),
+                    style: const TextStyle(fontSize: 10),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  '${percentage.toStringAsFixed(1)}%',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
+                );
+              },
             ),
-            const SizedBox(height: 4),
-            Text(
-              '${statistic.count} transaction${statistic.count != 1 ? 's' : ''}',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: Colors.grey[600]),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 45,
+              interval: maxY / 5,
+              getTitlesWidget: (value, meta) {
+                return Text(
+                  '\$${value.toInt()}',
+                  style: const TextStyle(fontSize: 10),
+                );
+              },
             ),
-          ],
+          ),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+        ),
+        minX: 0,
+        maxX: (dailyStats.length - 1).toDouble(),
+        minY: 0,
+        maxY: maxY * 1.1,
+        lineBarsData: [
+          LineChartBarData(
+            spots: incomeSpots,
+            isCurved: false,
+            color: Colors.green,
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, barData, index) {
+                return FlDotCirclePainter(
+                  radius: 4,
+                  color: Colors.green,
+                  strokeWidth: 2,
+                  strokeColor: Colors.white,
+                );
+              },
+            ),
+            belowBarData: BarAreaData(show: false),
+          ),
+          LineChartBarData(
+            spots: expenseSpots,
+            isCurved: false,
+            color: Colors.red,
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, barData, index) {
+                return FlDotCirclePainter(
+                  radius: 4,
+                  color: Colors.red,
+                  strokeWidth: 2,
+                  strokeColor: Colors.white,
+                );
+              },
+            ),
+            belowBarData: BarAreaData(show: false),
+          ),
+        ],
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (touchedSpot) =>
+                Colors.blueGrey.withValues(alpha: 0.8),
+            getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+              return touchedBarSpots.map((barSpot) {
+                final flSpot = barSpot;
+                final date = dailyStats[flSpot.x.toInt()].date;
+                final isIncome = barSpot.barIndex == 0;
+
+                return LineTooltipItem(
+                  '${DateFormat.MMMd().format(date)}\n',
+                  const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  children: [
+                    TextSpan(
+                      text:
+                          '${isIncome ? 'Income' : 'Expense'}: \$${flSpot.y.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        color: isIncome ? Colors.green : Colors.red,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                );
+              }).toList();
+            },
+          ),
+          handleBuiltInTouches: true,
         ),
       ),
     );
