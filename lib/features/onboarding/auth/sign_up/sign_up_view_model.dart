@@ -7,7 +7,10 @@ class SignUpViewModel extends ChangeNotifier {
   String _name = '';
   String _email = '';
   String _password = '';
+  String _confirmPassword = '';
+  bool _agreedToTerms = false;
   bool _isLoading = false;
+  bool _passwordVisible = false;
   String? _errorMessage;
   UserModel? _user;
 
@@ -17,6 +20,7 @@ class SignUpViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   UserModel? get user => _user;
+  bool get passwordVisible => _passwordVisible;
 
   void setName(String name) {
     _name = name;
@@ -31,6 +35,25 @@ class SignUpViewModel extends ChangeNotifier {
   void setPassword(String password) {
     _password = password;
     notifyListeners();
+  }
+
+  void setConfirmPassword(String confirmPassword) {
+    _confirmPassword = confirmPassword;
+    notifyListeners();
+  }
+
+  void setAgreedToTerms(bool? agreed) {
+    _agreedToTerms = agreed ?? false;
+    notifyListeners();
+  }
+
+  void toggleVisibility() {
+    _passwordVisible = !_passwordVisible;
+    notifyListeners();
+  }
+
+  bool get isFormValid {
+    return _name.isNotEmpty && _email.isNotEmpty && _password.isNotEmpty && _password == _confirmPassword && _agreedToTerms;
   }
 
   Future<Screen?> signUp() async {
