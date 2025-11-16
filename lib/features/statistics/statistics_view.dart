@@ -1,8 +1,13 @@
+import 'package:financy_control/core/components/constants.dart';
 import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/features/statistics/statistics_view_model.dart';
+import 'package:financy_control/router.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+// Import CategoryStatistic export from view model
+export 'package:financy_control/features/statistics/statistics_view_model.dart' show CategoryStatistic;
 
 class StatisticsView extends StatefulWidget {
   const StatisticsView({super.key});
@@ -11,10 +16,11 @@ class StatisticsView extends StatefulWidget {
   State<StatisticsView> createState() => _StatisticsViewState();
 }
 
-class _StatisticsViewState extends State<StatisticsView> {
+class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
   final StatisticsViewModel _viewModel = StatisticsViewModel();
   String _selectedRange = 'Month';
   String _currentRangeDisplay = '';
+  bool _showIncomeCategories = false;
 
   @override
   void initState() {
@@ -24,6 +30,12 @@ class _StatisticsViewState extends State<StatisticsView> {
     _viewModel.setStartDate(DateTime(now.year, now.month, 1));
     _viewModel.setEndDate(DateTime(now.year, now.month + 1, 0, 23, 59, 59));
     _viewModel.addListener(_onViewModelChange);
+    _viewModel.fetchStatistics();
+  }
+
+  @override
+  void didPushNext() {
+    super.didPushNext();
     _viewModel.fetchStatistics();
   }
 
@@ -50,8 +62,7 @@ class _StatisticsViewState extends State<StatisticsView> {
       case 'Week':
         final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
         final endOfWeek = startOfWeek.add(const Duration(days: 6));
-        _currentRangeDisplay =
-            '${DateFormat.MMMd().format(startOfWeek)} - ${DateFormat.MMMd().format(endOfWeek)}';
+        _currentRangeDisplay = '${DateFormat.MMMd().format(startOfWeek)} - ${DateFormat.MMMd().format(endOfWeek)}';
         _viewModel.setStartDate(
           DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day),
         );
@@ -100,8 +111,7 @@ class _StatisticsViewState extends State<StatisticsView> {
         _viewModel.setEndDate(
           DateTime(newEnd.year, newEnd.month, newEnd.day, 23, 59, 59),
         );
-        _currentRangeDisplay =
-            '${DateFormat.MMMd().format(newStart)} - ${DateFormat.MMMd().format(newEnd)}';
+        _currentRangeDisplay = '${DateFormat.MMMd().format(newStart)} - ${DateFormat.MMMd().format(newEnd)}';
         break;
       case 'Month':
         final offset = direction == 'previous' ? -1 : 1;
@@ -127,188 +137,222 @@ class _StatisticsViewState extends State<StatisticsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: kFlexibleSpace,
         title: const Text('Statistics'),
       ),
-      body: _viewModel.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _viewModel.errorMessage != null
-          ? Center(child: Text('Error: ${_viewModel.errorMessage}'))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Range selector buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _RangeButton(
-                          label: 'Day',
-                          isSelected: _selectedRange == 'Day',
-                          onTap: () => _updateDateRange('Day'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _RangeButton(
-                          label: 'Week',
-                          isSelected: _selectedRange == 'Week',
-                          onTap: () => _updateDateRange('Week'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _RangeButton(
-                          label: 'Month',
-                          isSelected: _selectedRange == 'Month',
-                          onTap: () => _updateDateRange('Month'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _RangeButton(
-                          label: 'Year',
-                          isSelected: _selectedRange == 'Year',
-                          onTap: () => _updateDateRange('Year'),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Date navigation
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () => _navigateDateRange('previous'),
-                      ),
-                      Text(
-                        _currentRangeDisplay,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.arrow_forward),
-                        onPressed: () => _navigateDateRange('next'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Income and Expense cards
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _SummaryCard(
-                          title: 'Income',
-                          amount: _viewModel.totalIncome,
-                          color: Colors.green,
-                          icon: Icons.arrow_upward,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _SummaryCard(
-                          title: 'Expenses',
-                          amount: _viewModel.totalExpense,
-                          color: Colors.red,
-                          icon: Icons.arrow_downward,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Chart section
-                  if (_viewModel.transactionCount > 0) ...[
-                    Text(
-                      'Income vs Expense Trend',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 12),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: SizedBox(
-                          height: 250,
-                          child: _LineChartWidget(
-                            dailyStats: _viewModel.dailyStatistics,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-
-                  // Top Transactions
-                  if (_viewModel.topTransactions.isNotEmpty) ...[
-                    Text(
-                      'Top Transactions',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 12),
-                    ..._viewModel.topTransactions.map(
-                      (transaction) => Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: transaction.category.income
-                                ? Colors.green.withValues(alpha: 0.2)
-                                : Colors.red.withValues(alpha: 0.2),
-                            child: Icon(
-                              transaction.category.income
-                                  ? Icons.arrow_upward
-                                  : Icons.arrow_downward,
-                              color: transaction.category.income
-                                  ? Colors.green
-                                  : Colors.red,
-                            ),
-                          ),
-                          title: Text(transaction.description),
-                          subtitle: Text(
-                            '${transaction.category.description.capitalize()} • ${DateFormat.MMMd().format(transaction.date)}',
-                          ),
-                          trailing: Text(
-                            '\$${transaction.amount.abs().toStringAsFixed(2)}',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  color: transaction.category.income
-                                      ? Colors.green
-                                      : Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-
-                  // Empty state
-                  if (_viewModel.transactionCount == 0)
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32),
-                        child: Column(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              alignment: Alignment.center,
+              decoration: const BoxDecoration(
+                color: Color(0xff38b6ff),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(32),
+                  bottomRight: Radius.circular(32),
+                ),
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Container(
+                  alignment: Alignment.center,
+                  constraints: const BoxConstraints.tightFor(height: 128),
+                ),
+              ),
+            ),
+            _viewModel.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _viewModel.errorMessage != null
+                ? Center(child: Text('Error: ${_viewModel.errorMessage}'))
+                : Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
                           children: [
-                            Icon(
-                              Icons.bar_chart,
-                              size: 64,
-                              color: Colors.grey[400],
+                            Expanded(
+                              child: _RangeButton(
+                                label: 'Day',
+                                isSelected: _selectedRange == 'Day',
+                                onTap: () => _updateDateRange('Day'),
+                              ),
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No transactions in this period',
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(color: Colors.grey[600]),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _RangeButton(
+                                label: 'Week',
+                                isSelected: _selectedRange == 'Week',
+                                onTap: () => _updateDateRange('Week'),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _RangeButton(
+                                label: 'Month',
+                                isSelected: _selectedRange == 'Month',
+                                onTap: () => _updateDateRange('Month'),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _RangeButton(
+                                label: 'Year',
+                                isSelected: _selectedRange == 'Year',
+                                onTap: () => _updateDateRange('Year'),
+                              ),
                             ),
                           ],
                         ),
-                      ),
+                        const SizedBox(height: 16),
+
+                        // Date navigation
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back),
+                              onPressed: () => _navigateDateRange('previous'),
+                            ),
+                            Text(
+                              _currentRangeDisplay,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.arrow_forward),
+                              onPressed: () => _navigateDateRange('next'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Income and Expense cards
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _SummaryCard(
+                                title: 'Income',
+                                amount: _viewModel.totalIncome,
+                                color: Colors.green,
+                                icon: Icons.arrow_upward,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _SummaryCard(
+                                title: 'Expenses',
+                                amount: _viewModel.totalExpense,
+                                color: Colors.red,
+                                icon: Icons.arrow_downward,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Chart section
+                        if (_viewModel.transactionCount > 0) ...[
+                          SegmentedButton<bool>(
+                            segments: const [
+                              ButtonSegment<bool>(
+                                value: false,
+                                label: Text('Expenses'),
+                                icon: Icon(Icons.arrow_downward, size: 16),
+                              ),
+                              ButtonSegment<bool>(
+                                value: true,
+                                label: Text('Income'),
+                                icon: Icon(Icons.arrow_upward, size: 16),
+                              ),
+                            ],
+                            selected: {_showIncomeCategories},
+                            onSelectionChanged: (Set<bool> newSelection) => setState(
+                              () => _showIncomeCategories = newSelection.first,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: SizedBox(
+                                height: 300,
+                                child: _CategoryPieChartWidget(
+                                  categories: _showIncomeCategories
+                                      ? _viewModel.incomeByCategory
+                                      : _viewModel.expenseByCategory,
+                                  isIncome: _showIncomeCategories,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+
+                        // Top Transactions
+                        if (_viewModel.topTransactions.isNotEmpty) ...[
+                          Text(
+                            'Top Transactions',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 12),
+                          ..._viewModel.topTransactions.map(
+                            (transaction) => Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: transaction.category.income
+                                      ? Colors.green.withValues(alpha: 0.2)
+                                      : Colors.red.withValues(alpha: 0.2),
+                                  child: Icon(
+                                    transaction.category.income ? Icons.arrow_upward : Icons.arrow_downward,
+                                    color: transaction.category.income ? Colors.green : Colors.red,
+                                  ),
+                                ),
+                                title: Text(transaction.description),
+                                subtitle: Text(
+                                  '${transaction.category.description.capitalize()} - ${DateFormat.MMMd().format(transaction.date)}',
+                                ),
+                                trailing: Text(
+                                  NumberFormat.simpleCurrency().format(
+                                    transaction.amount,
+                                  ),
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: transaction.category.income ? Colors.green : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+
+                        // Empty state
+                        if (_viewModel.transactionCount == 0)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(32),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.bar_chart,
+                                    size: 64,
+                                    color: Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No transactions in this period',
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                ],
-              ),
-            ),
+                  ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -331,9 +375,7 @@ class _RangeButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary
-              : Colors.grey[200],
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey[200],
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(
@@ -399,175 +441,186 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _LineChartWidget extends StatelessWidget {
-  final List<DailyStatistic> dailyStats;
+class _CategoryPieChartWidget extends StatefulWidget {
+  final List<CategoryStatistic> categories;
+  final bool isIncome;
 
-  const _LineChartWidget({required this.dailyStats});
+  const _CategoryPieChartWidget({
+    required this.categories,
+    required this.isIncome,
+  });
+
+  @override
+  State<_CategoryPieChartWidget> createState() => _CategoryPieChartWidgetState();
+}
+
+class _CategoryPieChartWidgetState extends State<_CategoryPieChartWidget> {
+  int touchedIndex = -1;
+
+  // Predefined colors for categories
+  static const List<Color> _categoryColors = [
+    Color(0xFF6366F1), // Indigo
+    Color(0xFFEC4899), // Pink
+    Color(0xFF10B981), // Green
+    Color(0xFFF59E0B), // Amber
+    Color(0xFF8B5CF6), // Purple
+    Color(0xFFEF4444), // Red
+    Color(0xFF3B82F6), // Blue
+    Color(0xFF14B8A6), // Teal
+    Color(0xFFF97316), // Orange
+    Color(0xFF06B6D4), // Cyan
+  ];
 
   @override
   Widget build(BuildContext context) {
-    if (dailyStats.isEmpty) {
-      return const Center(child: Text('No data available'));
+    if (widget.categories.isEmpty) {
+      return Center(
+        child: Text(
+          'No ${widget.isIncome ? 'income' : 'expense'} categories',
+        ),
+      );
     }
 
-    final incomeSpots = dailyStats.asMap().entries.map((entry) {
-      return FlSpot(entry.key.toDouble(), entry.value.income);
-    }).toList();
+    final total = widget.categories.fold(0.0, (sum, cat) => sum + cat.total);
 
-    final expenseSpots = dailyStats.asMap().entries.map((entry) {
-      return FlSpot(entry.key.toDouble(), entry.value.expense);
-    }).toList();
+    return Row(
+      children: [
+        Expanded(
+          flex: 3,
+          child: PieChart(
+            PieChartData(
+              pieTouchData: PieTouchData(
+                touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                  setState(() {
+                    if (!event.isInterestedForInteractions ||
+                        pieTouchResponse == null ||
+                        pieTouchResponse.touchedSection == null) {
+                      touchedIndex = -1;
+                      return;
+                    }
+                    touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                  });
+                },
+              ),
+              borderData: FlBorderData(show: false),
+              sectionsSpace: 2,
+              centerSpaceRadius: 40,
+              sections: widget.categories.asMap().entries.map((entry) {
+                final index = entry.key;
+                final category = entry.value;
+                final percentage = (category.total / total * 100).toStringAsFixed(1);
+                final isTouched = index == touchedIndex;
 
-    final maxY =
-        dailyStats
-            .map(
-              (stat) => stat.income > stat.expense ? stat.income : stat.expense,
-            )
-            .reduce((a, b) => a > b ? a : b) +
-        10;
-
-    return LineChart(
-      LineChartData(
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: true,
-          horizontalInterval: maxY / 5,
-          getDrawingHorizontalLine: (value) {
-            return FlLine(
-              color: Colors.grey.withValues(alpha: 0.2),
-              strokeWidth: 1,
-            );
-          },
-          getDrawingVerticalLine: (value) {
-            return FlLine(
-              color: Colors.grey.withValues(alpha: 0.2),
-              strokeWidth: 1,
-            );
-          },
-        ),
-        titlesData: FlTitlesData(
-          show: true,
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 30,
-              interval: dailyStats.length > 10 ? dailyStats.length / 5 : 1,
-              getTitlesWidget: (value, meta) {
-                final index = value.toInt();
-                if (index < 0 || index >= dailyStats.length) {
-                  return const Text('');
-                }
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    DateFormat.MMMd().format(dailyStats[index].date),
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                );
-              },
-            ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 45,
-              interval: maxY / 5,
-              getTitlesWidget: (value, meta) {
-                return Text(
-                  '\$${value.toInt()}',
-                  style: const TextStyle(fontSize: 10),
-                );
-              },
-            ),
-          ),
-        ),
-        borderData: FlBorderData(
-          show: true,
-          border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-        ),
-        minX: 0,
-        maxX: (dailyStats.length - 1).toDouble(),
-        minY: 0,
-        maxY: maxY * 1.1,
-        lineBarsData: [
-          LineChartBarData(
-            spots: incomeSpots,
-            isCurved: false,
-            color: Colors.green,
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (spot, percent, barData, index) {
-                return FlDotCirclePainter(
-                  radius: 4,
-                  color: Colors.green,
-                  strokeWidth: 2,
-                  strokeColor: Colors.white,
-                );
-              },
-            ),
-            belowBarData: BarAreaData(show: false),
-          ),
-          LineChartBarData(
-            spots: expenseSpots,
-            isCurved: false,
-            color: Colors.red,
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (spot, percent, barData, index) {
-                return FlDotCirclePainter(
-                  radius: 4,
-                  color: Colors.red,
-                  strokeWidth: 2,
-                  strokeColor: Colors.white,
-                );
-              },
-            ),
-            belowBarData: BarAreaData(show: false),
-          ),
-        ],
-        lineTouchData: LineTouchData(
-          touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (touchedSpot) =>
-                Colors.blueGrey.withValues(alpha: 0.8),
-            getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
-              return touchedBarSpots.map((barSpot) {
-                final flSpot = barSpot;
-                final date = dailyStats[flSpot.x.toInt()].date;
-                final isIncome = barSpot.barIndex == 0;
-
-                return LineTooltipItem(
-                  '${DateFormat.MMMd().format(date)}\n',
-                  const TextStyle(
-                    color: Colors.white,
+                return PieChartSectionData(
+                  color: _categoryColors[index % _categoryColors.length],
+                  value: category.total,
+                  title: isTouched ? '$percentage%' : '',
+                  radius: isTouched ? 70 : 60,
+                  titleStyle: const TextStyle(
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  children: [
-                    TextSpan(
-                      text:
-                          '${isIncome ? 'Income' : 'Expense'}: \$${flSpot.y.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        color: isIncome ? Colors.green : Colors.red,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ],
                 );
-              }).toList();
-            },
+              }).toList(),
+            ),
           ),
-          handleBuiltInTouches: true,
         ),
-      ),
+        Expanded(
+          flex: 2,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: widget.categories.asMap().entries.map((entry) {
+                final index = entry.key;
+                final category = entry.value;
+                final percentage = (category.total / total * 100).toStringAsFixed(1);
+                final color = _categoryColors[index % _categoryColors.length];
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _CategoryLegendItem(
+                    color: color,
+                    label: category.category.description.capitalize(),
+                    value: category.total,
+                    percentage: percentage,
+                    count: category.count,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CategoryLegendItem extends StatelessWidget {
+  final Color color;
+  final String label;
+  final double value;
+  final String percentage;
+  final int count;
+
+  const _CategoryLegendItem({
+    required this.color,
+    required this.label,
+    required this.value,
+    required this.percentage,
+    required this.count,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Padding(
+          padding: const EdgeInsets.only(left: 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '\$${value.toStringAsFixed(2)}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '$percentage%',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[600],
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

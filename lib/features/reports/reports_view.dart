@@ -1,5 +1,7 @@
+import 'package:financy_control/core/components/constants.dart';
 import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/features/reports/reports_view_model.dart';
+import 'package:financy_control/router.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -10,7 +12,7 @@ class ReportsView extends StatefulWidget {
   State<ReportsView> createState() => _ReportsViewState();
 }
 
-class _ReportsViewState extends State<ReportsView> {
+class _ReportsViewState extends State<ReportsView> with GoRouterAware {
   final ReportsViewModel _viewModel = ReportsViewModel();
   String _selectedRange = 'Month';
   String _currentRangeDisplay = '';
@@ -23,6 +25,12 @@ class _ReportsViewState extends State<ReportsView> {
     _viewModel.setStartDate(DateTime(now.year, now.month, 1));
     _viewModel.setEndDate(DateTime(now.year, now.month + 1, 0, 23, 59, 59));
     _viewModel.addListener(_onViewModelChange);
+    _viewModel.fetchTransactions();
+  }
+
+  @override
+  void didChangeTop() {
+    super.didChangeTop();
     _viewModel.fetchTransactions();
   }
 
@@ -41,13 +49,11 @@ class _ReportsViewState extends State<ReportsView> {
     switch (range) {
       case 'Week':
         final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-        _currentRangeDisplay =
-            '${DateFormat.MMMd().format(startOfWeek)} - ${DateFormat.MMMd().format(now)}';
+        _currentRangeDisplay = '${DateFormat.MMMd().format(startOfWeek)} - ${DateFormat.MMMd().format(now)}';
         _viewModel.setStartDate(
           DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day),
         );
-        _viewModel
-            .setEndDate(DateTime(now.year, now.month, now.day, 23, 59, 59));
+        _viewModel.setEndDate(DateTime(now.year, now.month, now.day, 23, 59, 59));
         break;
       case 'Month':
         _currentRangeDisplay = DateFormat.yMMMM().format(now);
@@ -86,13 +92,11 @@ class _ReportsViewState extends State<ReportsView> {
         _viewModel.setEndDate(
           DateTime(newEnd.year, newEnd.month, newEnd.day, 23, 59, 59),
         );
-        _currentRangeDisplay =
-            '${DateFormat.MMMd().format(newStart)} - ${DateFormat.MMMd().format(newEnd)}';
+        _currentRangeDisplay = '${DateFormat.MMMd().format(newStart)} - ${DateFormat.MMMd().format(newEnd)}';
         break;
       case 'Month':
         final offset = direction == 'previous' ? -1 : 1;
-        final newMonth =
-            DateTime(startDate.year, startDate.month + offset, 1);
+        final newMonth = DateTime(startDate.year, startDate.month + offset, 1);
         _viewModel.setStartDate(newMonth);
         _viewModel.setEndDate(
           DateTime(newMonth.year, newMonth.month + 1, 0, 23, 59, 59),
@@ -127,15 +131,6 @@ class _ReportsViewState extends State<ReportsView> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.save),
-              title: const Text('Save PDF'),
-              subtitle: const Text('Save to device storage'),
-              onTap: () {
-                Navigator.pop(context);
-                _viewModel.generateAndSavePdf();
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.print),
               title: const Text('Print PDF'),
               subtitle: const Text('Print or preview before saving'),
@@ -154,6 +149,7 @@ class _ReportsViewState extends State<ReportsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: kFlexibleSpace,
         title: const Text('Reports'),
         actions: [
           if (_viewModel.transactions.isNotEmpty)
@@ -168,229 +164,219 @@ class _ReportsViewState extends State<ReportsView> {
                       ),
                     )
                   : const Icon(Icons.picture_as_pdf),
-              onPressed: _viewModel.isGeneratingPdf
-                  ? null
-                  : _showExportOptions,
+              onPressed: _viewModel.isGeneratingPdf ? null : _showExportOptions,
               tooltip: 'Export PDF',
             ),
         ],
       ),
       body: _viewModel.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _viewModel.errorMessage != null &&
-                  !_viewModel.errorMessage!.contains('PDF saved')
-              ? Center(child: Text('Error: ${_viewModel.errorMessage}'))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Date range selector
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back),
-                            onPressed: _selectedRange == 'All'
-                                ? null
-                                : () => _navigateDateRange('previous'),
+          : _viewModel.errorMessage != null && !_viewModel.errorMessage!.contains('PDF saved')
+          ? Center(child: Text('Error: ${_viewModel.errorMessage}'))
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      color: Color(0xff38b6ff),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(32),
+                        bottomRight: Radius.circular(32),
+                      ),
+                    ),
+                    child: SafeArea(
+                      bottom: false,
+                      child: Container(
+                        alignment: Alignment.center,
+                        constraints: const BoxConstraints.tightFor(height: 128),
+                      ),
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Date range selector
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back),
+                              onPressed: _selectedRange == 'All' ? null : () => _navigateDateRange('previous'),
+                            ),
+                            Flexible(
+                              child: DefaultTextStyle(
+                                style: Theme.of(context).textTheme.bodyMedium!,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    PopupMenuButton<String>(
+                                      constraints: const BoxConstraints.tightFor(width: 100),
+                                      padding: EdgeInsets.zero,
+                                      menuPadding: EdgeInsets.zero,
+                                      onSelected: _updateDateRange,
+                                      itemBuilder: (context) => const [
+                                        PopupMenuItem(
+                                          value: 'Week',
+                                          child: Center(child: Text('Week')),
+                                        ),
+                                        PopupMenuItem(
+                                          value: 'Month',
+                                          child: Center(child: Text('Month')),
+                                        ),
+                                        PopupMenuItem(
+                                          value: 'Year',
+                                          child: Center(child: Text('Year')),
+                                        ),
+                                        PopupMenuItem(
+                                          value: 'All',
+                                          child: Center(child: Text('All Time')),
+                                        ),
+                                      ],
+                                      child: ConstrainedBox(
+                                        constraints: const BoxConstraints.tightFor(
+                                          width: 100,
+                                          height: kMinInteractiveDimension,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            _currentRangeDisplay,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.arrow_forward),
+                              onPressed: _selectedRange == 'All' ? null : () => _navigateDateRange('next'),
+                            ),
+                          ],
+                        ),
+
+                        // Summary Section
+                        Text(
+                          'Report Summary',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 16),
+                        _SummaryCard(
+                          title: 'Total Income',
+                          value: '\$${_viewModel.totalIncome.toStringAsFixed(2)}',
+                          color: Colors.green,
+                          icon: Icons.arrow_upward,
+                        ),
+                        const SizedBox(height: 8),
+                        _SummaryCard(
+                          title: 'Total Expenses',
+                          value: '\$${_viewModel.totalExpense.toStringAsFixed(2)}',
+                          color: Colors.red,
+                          icon: Icons.arrow_downward,
+                        ),
+                        const SizedBox(height: 8),
+                        _SummaryCard(
+                          title: 'Net Balance',
+                          value: '\$${_viewModel.netBalance.toStringAsFixed(2)}',
+                          color: _viewModel.netBalance >= 0 ? Colors.blue : Colors.orange,
+                          icon: Icons.account_balance_wallet,
+                        ),
+                        const SizedBox(height: 8),
+                        _SummaryCard(
+                          title: 'Total Transactions',
+                          value: '${_viewModel.transactions.length}',
+                          color: Colors.purple,
+                          icon: Icons.list_alt,
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Category Breakdowns
+                        if (_viewModel.incomeCategories.isNotEmpty) ...[
+                          Text(
+                            'Income Breakdown',
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
-                          Flexible(
-                            child: PopupMenuButton<String>(
-                              onSelected: _updateDateRange,
-                              itemBuilder: (context) => const [
-                                PopupMenuItem(
-                                  value: 'Week',
-                                  child: Text('Week'),
-                                ),
-                                PopupMenuItem(
-                                  value: 'Month',
-                                  child: Text('Month'),
-                                ),
-                                PopupMenuItem(
-                                  value: 'Year',
-                                  child: Text('Year'),
-                                ),
-                                PopupMenuItem(
-                                  value: 'All',
-                                  child: Text('All Time'),
-                                ),
-                              ],
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                          const SizedBox(height: 12),
+                          ..._viewModel.incomeCategories.map(
+                            (cat) => _CategoryReportTile(
+                              category: cat,
+                              color: Colors.green,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+
+                        if (_viewModel.expenseCategories.isNotEmpty) ...[
+                          Text(
+                            'Expense Breakdown',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 12),
+                          ..._viewModel.expenseCategories.map(
+                            (cat) => _CategoryReportTile(
+                              category: cat,
+                              color: Colors.red,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+
+                        // Export Button
+                        if (_viewModel.transactions.isNotEmpty)
+                          ElevatedButton.icon(
+                            onPressed: _viewModel.isGeneratingPdf ? null : _showExportOptions,
+                            icon: _viewModel.isGeneratingPdf
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.picture_as_pdf),
+                            label: Text(_viewModel.isGeneratingPdf ? 'Generating PDF...' : 'Export Report as PDF'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.all(16),
+                            ),
+                          ),
+
+                        // Empty state
+                        if (_viewModel.transactions.isEmpty)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(32),
+                              child: Column(
                                 children: [
-                                  Text(
-                                    _currentRangeDisplay,
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium,
+                                  Icon(
+                                    Icons.description_outlined,
+                                    size: 64,
+                                    color: Colors.grey[400],
                                   ),
-                                  const Icon(Icons.arrow_drop_down),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No transactions in this period',
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Add some transactions to generate reports',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
+                                  ),
                                 ],
                               ),
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.arrow_forward),
-                            onPressed: _selectedRange == 'All'
-                                ? null
-                                : () => _navigateDateRange('next'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Success message
-                      if (_viewModel.errorMessage != null &&
-                          _viewModel.errorMessage!.contains('PDF saved'))
-                        Card(
-                          color: Colors.green[50],
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.check_circle,
-                                    color: Colors.green),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    _viewModel.errorMessage!,
-                                    style: const TextStyle(color: Colors.green),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      if (_viewModel.errorMessage != null &&
-                          _viewModel.errorMessage!.contains('PDF saved'))
-                        const SizedBox(height: 16),
-
-                      // Summary Section
-                      Text(
-                        'Report Summary',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 16),
-                      _SummaryCard(
-                        title: 'Total Income',
-                        value: '\$${_viewModel.totalIncome.toStringAsFixed(2)}',
-                        color: Colors.green,
-                        icon: Icons.arrow_upward,
-                      ),
-                      const SizedBox(height: 8),
-                      _SummaryCard(
-                        title: 'Total Expenses',
-                        value: '\$${_viewModel.totalExpense.toStringAsFixed(2)}',
-                        color: Colors.red,
-                        icon: Icons.arrow_downward,
-                      ),
-                      const SizedBox(height: 8),
-                      _SummaryCard(
-                        title: 'Net Balance',
-                        value: '\$${_viewModel.netBalance.toStringAsFixed(2)}',
-                        color: _viewModel.netBalance >= 0
-                            ? Colors.blue
-                            : Colors.orange,
-                        icon: Icons.account_balance_wallet,
-                      ),
-                      const SizedBox(height: 8),
-                      _SummaryCard(
-                        title: 'Total Transactions',
-                        value: '${_viewModel.transactions.length}',
-                        color: Colors.purple,
-                        icon: Icons.list_alt,
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Category Breakdowns
-                      if (_viewModel.incomeCategories.isNotEmpty) ...[
-                        Text(
-                          'Income Breakdown',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 12),
-                        ..._viewModel.incomeCategories.map(
-                          (cat) => _CategoryReportTile(
-                            category: cat,
-                            color: Colors.green,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
                       ],
-
-                      if (_viewModel.expenseCategories.isNotEmpty) ...[
-                        Text(
-                          'Expense Breakdown',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 12),
-                        ..._viewModel.expenseCategories.map(
-                          (cat) => _CategoryReportTile(
-                            category: cat,
-                            color: Colors.red,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
-
-                      // Export Button
-                      if (_viewModel.transactions.isNotEmpty)
-                        ElevatedButton.icon(
-                          onPressed: _viewModel.isGeneratingPdf
-                              ? null
-                              : _showExportOptions,
-                          icon: _viewModel.isGeneratingPdf
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.picture_as_pdf),
-                          label: Text(_viewModel.isGeneratingPdf
-                              ? 'Generating PDF...'
-                              : 'Export Report as PDF'),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.all(16),
-                          ),
-                        ),
-
-                      // Empty state
-                      if (_viewModel.transactions.isEmpty)
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(32),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.description_outlined,
-                                  size: 64,
-                                  color: Colors.grey[400],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No transactions in this period',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(color: Colors.grey[600]),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Add some transactions to generate reports',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(color: Colors.grey[500]),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
+              ),
+            ),
     );
   }
 }
@@ -426,9 +412,9 @@ class _SummaryCard extends StatelessWidget {
             Text(
               value,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -478,9 +464,9 @@ class _CategoryReportTile extends StatelessWidget {
                   Text(
                     '\$${category.total.toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: color,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
                   ),
                   Text(
                     '${category.percentage.toStringAsFixed(1)}%',

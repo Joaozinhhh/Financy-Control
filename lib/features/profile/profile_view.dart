@@ -1,3 +1,6 @@
+import 'package:financy_control/core/components/buttons.dart';
+import 'package:financy_control/core/components/constants.dart';
+import 'package:financy_control/core/components/textfields.dart';
 import 'package:financy_control/features/profile/profile_view_model.dart';
 import 'package:financy_control/router.dart';
 import 'package:flutter/material.dart';
@@ -33,36 +36,82 @@ class _ProfileViewState extends State<ProfileView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: kFlexibleSpace,
         title: const Text('Profile'),
       ),
       body: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 20),
-          CircleAvatar(
-            radius: 50,
-            backgroundImage: _viewModel.photoUrl.isNotEmpty
-                ? NetworkImage(_viewModel.photoUrl)
-                : null,
-            child: _viewModel.photoUrl.isEmpty
-                ? const Icon(Icons.person)
-                : null,
-          ),
-          const SizedBox(height: 10),
-          Text(
-            _viewModel.name.isNotEmpty ? _viewModel.name : 'Loading...',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            _viewModel.email.isNotEmpty ? _viewModel.email : 'Loading...',
-            style: const TextStyle(fontSize: 16, color: Colors.grey),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                bottom: 24 + 8 + 24 + 8 + 128 / 4,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xff38b6ff),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(32),
+                      bottomRight: Radius.circular(32),
+                    ),
+                  ),
+                ),
+              ),
+              Align(
+                child: SafeArea(
+                  bottom: false,
+                  child: Column(
+                    children: [
+                      ConstrainedBox(
+                        constraints: BoxConstraints.tight(
+                          const Size.square(128),
+                        ),
+                        child: FittedBox(
+                          child: CircleAvatar(
+                            radius: 50,
+                            backgroundImage: _viewModel.photoUrl.isNotEmpty ? NetworkImage(_viewModel.photoUrl) : null,
+                            child: _viewModel.photoUrl.isEmpty ? const Icon(Icons.person) : null,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints.tightFor(height: 24),
+                        child: Text(
+                          _viewModel.name.isNotEmpty ? _viewModel.name : 'Loading...',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints.tightFor(height: 24),
+                        child: Text(
+                          _viewModel.email.isNotEmpty ? _viewModel.email : 'Loading...',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
           ListTile(
             leading: const Icon(Icons.edit),
             title: const Text('Change Name'),
             onTap: () async {
-              final newName = await _showInputDialog(context, 'Change Name');
+              final newName = await _showInputBottomSheet(
+                context,
+                title: 'Change Name',
+                hint: 'Enter your new name',
+              );
               if (newName != null && newName.isNotEmpty) {
                 final success = await _viewModel.updateUserName(newName);
                 if (success) {
@@ -71,27 +120,30 @@ class _ProfileViewState extends State<ProfileView> {
               }
             },
           ),
-          // access reports
-          ListTile(
-            leading: const Icon(Icons.list_alt),
-            title: const Text('Access Reports'),
-            onTap: () async {
-              context.push(Screen.reports.location);
-            },
-          ),
           ListTile(
             leading: const Icon(Icons.lock),
             title: const Text('Change Password'),
             onTap: () async {
-              final newPassword = await _showInputDialog(
+              final newPassword = await _showInputBottomSheet(
                 context,
-                'Change Password',
+                title: 'Change Password',
+                hint: 'Enter your new password',
+                obscureText: true,
               );
               if (newPassword != null && newPassword.isNotEmpty) {
                 await _viewModel.updateUserPassword(newPassword);
               }
             },
           ),
+          // access reports
+          ListTile(
+            leading: const Icon(Icons.list_alt),
+            title: const Text('Access Reports'),
+            onTap: () async {
+              context.go(Screen.reports.location);
+            },
+          ),
+          const SizedBox(height: 24),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
@@ -107,29 +159,84 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Future<String?> _showInputDialog(BuildContext context, String title) async {
+  Future<String?> _showInputBottomSheet(
+    BuildContext context, {
+    required String title,
+    required String hint,
+    bool obscureText = false,
+  }) async {
     String input = '';
-    return showDialog<String>(
+    bool isObscured = obscureText;
+    return showModalBottomSheet<String>(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          content: TextField(
-            onChanged: (value) {
-              input = value;
-            },
-            decoration: const InputDecoration(hintText: 'Enter here'),
+        return Padding(
+          padding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(input),
-              child: const Text('OK'),
-            ),
-          ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              StatefulBuilder(
+                builder: (context, setState) {
+                  return FCTextField(
+                    onChanged: (value) => input = value,
+                    decoration: const InputDecoration().copyWith(
+                      hintText: hint,
+                      suffixIcon: switch (obscureText) {
+                        true => IconButton(
+                          icon: Icon(
+                            isObscured ? Icons.visibility : Icons.visibility_off,
+                          ),
+                          onPressed: () => setState(() => isObscured = !isObscured),
+                        ),
+                        false => null,
+                      },
+                    ),
+                    obscureText: isObscured,
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FCButton.terciary(
+                    style: Theme.of(context).textButtonTheme.style?.copyWith(
+                      minimumSize: WidgetStateProperty.all<Size>(
+                        const Size(110, 50),
+                      ),
+                    ),
+                    onPressed: () => context.pop(),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 8),
+                  FCButton.primary(
+                    style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                      minimumSize: WidgetStateProperty.all<Size>(
+                        const Size(110, 50),
+                      ),
+                    ),
+                    onPressed: () => context.pop(input),
+                    child: const Text('Save'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
         );
       },
     );
