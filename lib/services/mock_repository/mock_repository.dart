@@ -148,7 +148,9 @@ Future<TransactionModel> mockCreateTransaction(
 ) async {
   final transaction = TransactionModel(
     id: DateTime.now().millisecondsSinceEpoch.toString(),
-    amount: input.amount ?? 0.0,
+    amount: input.category.income
+        ? input.amount ?? 0.0
+        : -(input.amount ?? 0.0),
     description: input.description,
     date: input.date,
     category: input.category,
@@ -167,7 +169,9 @@ Future<TransactionModel> mockUpdateTransaction(
   }
   final updatedTransaction = TransactionModel(
     id: id,
-    amount: input.amount ?? _inMemoryTransactions[index].amount,
+    amount: input.category.income
+        ? input.amount ?? _inMemoryTransactions[index].amount
+        : -(input.amount ?? _inMemoryTransactions[index].amount),
     description: input.description,
     date: input.date,
     category: input.category,
@@ -241,7 +245,11 @@ Future<double> mockGetBalance() async {
   // Simulate balance calculation
   return _inMemoryTransactions.fold<double>(
     0.0,
-    (sum, transaction) => sum + transaction.amount,
+    (sum, transaction) =>
+        sum +
+        (transaction.category.income
+            ? transaction.amount
+            : -transaction.amount),
   );
 }
 

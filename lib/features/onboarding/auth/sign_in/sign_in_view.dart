@@ -116,7 +116,7 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                           FCButton.terciary(
                             style: Theme.of(context).textButtonTheme.style?.copyWith(
                               minimumSize: WidgetStateProperty.all<Size>(const Size(220, 50)),
-                              splashFactory: NoSplash.splashFactory
+                              splashFactory: NoSplash.splashFactory,
                             ),
                             onPressed: () {
                               if (!context.mounted) return;
@@ -128,7 +128,7 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                             style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
                               minimumSize: WidgetStateProperty.all<Size>(const Size(220, 50)),
                             ),
-                            onPressed: _viewModel.isLoading
+                            onPressed: _viewModel.isLoading || !_viewModel.isFormValid
                                 ? null
                                 : () async {
                                     final screen = await _viewModel.signIn();

@@ -33,6 +33,8 @@ class SignInViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool get isFormValid => _email.isNotEmpty && _password.isNotEmpty;
+
   Future<Screen?> signIn() async {
     _isLoading = true;
     _errorMessage = null;
