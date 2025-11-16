@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/core/models/transaction_model.dart';
 import 'package:financy_control/services/mock_repository/mock_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -29,6 +26,7 @@ class ReportsViewModel extends ChangeNotifier {
   bool _isLoading = false;
   bool _isGeneratingPdf = false;
   String? _errorMessage;
+  String? _pdfSavedMessage;
   DateTime? _startDate;
   DateTime? _endDate;
 
@@ -36,6 +34,7 @@ class ReportsViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isGeneratingPdf => _isGeneratingPdf;
   String? get errorMessage => _errorMessage;
+  String? get pdfSavedMessage => _pdfSavedMessage;
   DateTime? get startDate => _startDate;
   DateTime? get endDate => _endDate;
 
@@ -48,15 +47,11 @@ class ReportsViewModel extends ChangeNotifier {
 
   // Statistics
   double get totalIncome {
-    return _transactions
-        .where((t) => t.category.income)
-        .fold(0.0, (sum, t) => sum + t.amount);
+    return _transactions.where((t) => t.category.income).fold(0.0, (sum, t) => sum + t.amount);
   }
 
   double get totalExpense {
-    return _transactions
-        .where((t) => t.category.expense)
-        .fold(0.0, (sum, t) => sum + t.amount.abs());
+    return _transactions.where((t) => t.category.expense).fold(0.0, (sum, t) => sum + t.amount.abs());
   }
 
   double get netBalance => totalIncome - totalExpense;
@@ -136,32 +131,10 @@ class ReportsViewModel extends ChangeNotifier {
       final pdf = await _generatePdfDocument();
       await Printing.sharePdf(
         bytes: await pdf.save(),
-        filename:
-            'financial_report_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.pdf',
+        filename: 'financial_report_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.pdf',
       );
     } catch (e) {
       _errorMessage = 'Failed to generate PDF: $e';
-    } finally {
-      _isGeneratingPdf = false;
-      rebuild();
-    }
-  }
-
-  Future<void> generateAndSavePdf() async {
-    _isGeneratingPdf = true;
-    _errorMessage = null;
-    rebuild();
-
-    try {
-      final pdf = await _generatePdfDocument();
-      final output = await getApplicationDocumentsDirectory();
-      final fileName =
-          'financial_report_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.pdf';
-      final file = File('${output.path}/$fileName');
-      await file.writeAsBytes(await pdf.save());
-      _errorMessage = 'PDF saved to: ${file.path}';
-    } catch (e) {
-      _errorMessage = 'Failed to save PDF: $e';
     } finally {
       _isGeneratingPdf = false;
       rebuild();
