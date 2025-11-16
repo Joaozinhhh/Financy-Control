@@ -5,5 +5,5 @@ linter:
     prefer_const_constructors: true
 
 formatter:
-  page_width: 80
+  page_width: 120
   trailing_commas: preserve
