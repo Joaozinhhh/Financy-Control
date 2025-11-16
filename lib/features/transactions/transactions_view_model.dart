@@ -17,14 +17,14 @@ class TransactionsViewModel extends ChangeNotifier {
   DateTime? get endDate => _endDate;
   final ValueNotifier<DateTime?> _selectedDate = ValueNotifier(null);
   ValueNotifier<DateTime?> get selectedDate => _selectedDate;
-  final ValueNotifier<TransactionCategory> _selectedCategory =
-      ValueNotifier<TransactionCategory>(IncomeCategory.other);
-  ValueNotifier<TransactionCategory> get selectedCategory => _selectedCategory;
+  final ValueNotifier<TransactionCategory?> _selectedCategory =
+      ValueNotifier<TransactionCategory?>(null);
+  ValueNotifier<TransactionCategory?> get selectedCategory => _selectedCategory;
 
   final ValueNotifier<int> _currentTabIndex = ValueNotifier(0);
   ValueNotifier<int> get currentTabIndex => _currentTabIndex;
 
-  void setSelectedCategory(TransactionCategory category) {
+  void setSelectedCategory(TransactionCategory? category) {
     if (_selectedCategory.value != category) {
       _selectedCategory.value = category;
       rebuild();
@@ -104,6 +104,22 @@ class TransactionsViewModel extends ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString();
       return null;
+    } finally {
+      _isLoading = false;
+      rebuild();
+    }
+  }
+
+  Future<bool> deleteTransaction(String id) async {
+    _isLoading = true;
+    _errorMessage = null;
+    rebuild();
+
+    try {
+      return await mockDeleteTransaction(id);
+    } catch (e) {
+      _errorMessage = e.toString();
+      return false;
     } finally {
       _isLoading = false;
       rebuild();
