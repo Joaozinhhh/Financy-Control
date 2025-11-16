@@ -9,12 +9,14 @@ class SignInViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   UserModel? _user;
+  bool _passwordVisible = false;
 
   String get email => _email;
   String get password => _password;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   UserModel? get user => _user;
+  bool get passwordVisible => _passwordVisible;
 
   void setEmail(String email) {
     _email = email;
@@ -23,6 +25,11 @@ class SignInViewModel extends ChangeNotifier {
 
   void setPassword(String password) {
     _password = password;
+    notifyListeners();
+  }
+
+  void toggleVisibility() {
+    _passwordVisible = !_passwordVisible;
     notifyListeners();
   }
 
