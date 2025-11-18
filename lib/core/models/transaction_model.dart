@@ -60,8 +60,7 @@ class TransactionModel {
     required this.category,
   });
 
-  factory TransactionModel.fromJson(Map<String, dynamic> json) =>
-      _$TransactionModelFromJson(json);
+  factory TransactionModel.fromJson(Map<String, dynamic> json) => _$TransactionModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$TransactionModelToJson(this);
 }
@@ -83,27 +82,31 @@ class TransactionInputModel {
     required this.category,
   });
 
-  factory TransactionInputModel.fromJson(Map<String, dynamic> json) =>
-      _$TransactionInputModelFromJson(json);
+  factory TransactionInputModel.fromJson(Map<String, dynamic> json) => _$TransactionInputModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$TransactionInputModelToJson(this);
 }
 
-class TransactionCategoryConverter
-    implements JsonConverter<TransactionCategory, String> {
+class TransactionCategoryConverter implements JsonConverter<TransactionCategory, String> {
   const TransactionCategoryConverter();
 
   @override
   TransactionCategory fromJson(String json) {
-    return IncomeCategory.values.firstWhere(
-      (e) => e.name == json,
+    for (final c in IncomeCategory.values) {
+      if (c.name == json) return c;
+    }
+    for (final c in ExpenseCategory.values) {
+      if (c.name == json) return c;
+    }
+    throw ArgumentError.value(
+      json,
+      'json',
+      'Unknown TransactionCategory',
     );
   }
 
   @override
   String toJson(TransactionCategory category) {
-    return category.income
-        ? (category as IncomeCategory).name
-        : (category as ExpenseCategory).name;
+    return category.income ? (category as IncomeCategory).name : (category as ExpenseCategory).name;
   }
 }
