@@ -1,7 +1,9 @@
-import 'package:financy_control/services/mock_repository/mock_repository.dart';
+import 'package:financy_control/locator.dart';
+import 'package:financy_control/services/auth/auth_service.dart';
 import 'package:flutter/foundation.dart';
 
 class ResetPasswordViewModel extends ChangeNotifier {
+  final AuthService _authService = locator<AuthService>();
   String _email = '';
   bool _isLoading = false;
   String? _errorMessage;
@@ -21,8 +23,14 @@ class ResetPasswordViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final success = await mockForgotPassword(_email);
-      return success;
+      final result = await _authService.forgotPassword(_email);
+      return result.fold(
+        (error) {
+          _errorMessage = error.message;
+          return false;
+        },
+        (success) => success,
+      );
     } catch (e) {
       _errorMessage = e.toString();
       return false;

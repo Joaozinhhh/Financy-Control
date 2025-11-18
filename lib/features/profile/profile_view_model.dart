@@ -1,9 +1,14 @@
 import 'package:financy_control/core/extensions.dart';
+import 'package:financy_control/locator.dart';
+import 'package:financy_control/repositories/user_repository.dart';
 import 'package:financy_control/router.dart';
-import 'package:financy_control/services/mock_repository/mock_repository.dart';
+import 'package:financy_control/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class ProfileViewModel extends ChangeNotifier {
+  final UserRepository _userRepository = locator<UserRepository>();
+  final AuthService _authService = locator<AuthService>();
+
   String _name = '';
   String _email = '';
   String _photoUrl = '';
@@ -22,10 +27,15 @@ class ProfileViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      final profile = await mockGetUserProfile();
-      _name = profile['name']!;
-      _email = profile['email']!;
-      _photoUrl = profile['photoUrl']!;
+      final result = await _userRepository.getUserProfile();
+      result.fold(
+        (error) => _errorMessage = error.message,
+        (user) {
+          _name = user.name;
+          _email = user.email;
+          _photoUrl = user.photoUrl ?? '';
+        },
+      );
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -40,11 +50,19 @@ class ProfileViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      final success = await mockUpdateUserName(newName);
-      if (success) {
-        _name = newName;
-      }
-      return success;
+      final result = await _userRepository.updateUserName(newName);
+      return result.fold(
+        (error) {
+          _errorMessage = error.message;
+          return false;
+        },
+        (success) {
+          if (success) {
+            _name = newName;
+          }
+          return success;
+        },
+      );
     } catch (e) {
       _errorMessage = e.toString();
       return false;
@@ -60,7 +78,14 @@ class ProfileViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      return await mockUpdateUserPassword(newPassword);
+      final result = await _userRepository.updateUserPassword(newPassword);
+      return result.fold(
+        (error) {
+          _errorMessage = error.message;
+          return false;
+        },
+        (success) => success,
+      );
     } catch (e) {
       _errorMessage = e.toString();
       return false;
@@ -76,7 +101,7 @@ class ProfileViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      await mockLogout();
+      await _authService.signOut();
       return Screen.signIn;
     } catch (e) {
       _errorMessage = e.toString();

@@ -1,9 +1,11 @@
 import 'package:financy_control/core/models/user_model.dart';
+import 'package:financy_control/locator.dart';
 import 'package:financy_control/router.dart';
-import 'package:financy_control/services/mock_repository/mock_repository.dart';
+import 'package:financy_control/services/auth/auth_service.dart';
 import 'package:flutter/foundation.dart';
 
 class SignUpViewModel extends ChangeNotifier {
+  final AuthService _authService = locator<AuthService>();
   String _name = '';
   String _email = '';
   String _password = '';
@@ -67,8 +69,17 @@ class SignUpViewModel extends ChangeNotifier {
         email: _email,
         password: _password,
       );
-      _user = await mockCreateUser(input);
-      return Screen.home;
+      final result = await _authService.signUp(input);
+      return result.fold(
+        (error) {
+          _errorMessage = error.message;
+          return null;
+        },
+        (user) {
+          _user = user;
+          return Screen.home;
+        },
+      );
     } catch (e) {
       _errorMessage = e.toString();
       return null;

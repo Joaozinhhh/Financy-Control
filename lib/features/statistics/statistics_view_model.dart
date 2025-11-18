@@ -1,6 +1,7 @@
 import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/core/models/transaction_model.dart';
-import 'package:financy_control/services/mock_repository/mock_repository.dart';
+import 'package:financy_control/locator.dart';
+import 'package:financy_control/repositories/transaction_repository.dart';
 import 'package:flutter/material.dart';
 
 class CategoryStatistic {
@@ -28,6 +29,7 @@ class DailyStatistic {
 }
 
 class StatisticsViewModel extends ChangeNotifier {
+  final TransactionRepository _repository = locator<TransactionRepository>();
   List<TransactionModel> _transactions = [];
   bool _isLoading = false;
   String? _errorMessage;
@@ -149,9 +151,13 @@ class StatisticsViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      _transactions = await mockGetTransactions(
+      final result = await _repository.getTransactions(
         startDate: _startDate,
         endDate: _endDate,
+      );
+      result.fold(
+        (error) => _errorMessage = error.message,
+        (data) => _transactions = data,
       );
     } catch (e) {
       _errorMessage = e.toString();

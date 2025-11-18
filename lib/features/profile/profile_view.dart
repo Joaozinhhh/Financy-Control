@@ -2,8 +2,9 @@ import 'package:financy_control/core/components/buttons.dart';
 import 'package:financy_control/core/components/constants.dart';
 import 'package:financy_control/core/components/textfields.dart';
 import 'package:financy_control/features/profile/profile_view_model.dart';
+import 'package:financy_control/locator.dart';
 import 'package:financy_control/router.dart';
-import 'package:financy_control/services/local_storage/local_storage_service.dart';
+import 'package:financy_control/services/storage/storage_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -146,47 +147,7 @@ class _ProfileViewState extends State<ProfileView> {
               context.go(Screen.reports.location);
             },
           ),
-          if (kDebugMode)
-            Align(
-              alignment: Alignment.center,
-              child: FCButton.danger(
-                onPressed: () async {
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Confirm Deletion'),
-                        content: const Text(
-                          'Are you sure you want to delete all your data? This action cannot be undone.',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => context.pop(false),
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () => context.pop(true),
-                            child: const Text('Delete'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                  if (confirmed == true) {
-                    if (await LocalStorageService().clearAll() && context.mounted) {
-                      context.go(Screen.signIn.location);
-                    }
-                  }
-                },
-                style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                  minimumSize: WidgetStateProperty.all<Size>(
-                    const Size(128, 32),
-                  ),
-                ),
-                child: const Text('Delete Data'),
-              ),
-            ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
@@ -197,6 +158,48 @@ class _ProfileViewState extends State<ProfileView> {
               }
             },
           ),
+          if (kDebugMode)
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: FCButton.danger(
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Confirm Deletion'),
+                          content: const Text(
+                            'Are you sure you want to delete all your data? This action cannot be undone.',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => context.pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => context.pop(true),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    if (confirmed == true) {
+                      if (await locator<StorageService>().clearAll() && context.mounted) {
+                        context.go(Screen.signIn.location);
+                      }
+                    }
+                  },
+                  style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                    minimumSize: WidgetStateProperty.all<Size>(
+                      const Size(128, 32),
+                    ),
+                  ),
+                  child: const Text('Delete Data'),
+                ),
+              ),
+            ),
         ],
       ),
     );

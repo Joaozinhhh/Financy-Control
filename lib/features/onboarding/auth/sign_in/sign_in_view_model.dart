@@ -1,9 +1,11 @@
 import 'package:financy_control/core/models/user_model.dart';
+import 'package:financy_control/locator.dart';
 import 'package:financy_control/router.dart';
-import 'package:financy_control/services/mock_repository/mock_repository.dart';
+import 'package:financy_control/services/auth/auth_service.dart';
 import 'package:flutter/foundation.dart';
 
 class SignInViewModel extends ChangeNotifier {
+  final AuthService _authService = locator<AuthService>();
   String _email = '';
   String _password = '';
   bool _isLoading = false;
@@ -41,9 +43,17 @@ class SignInViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final input = UserInputModel(email: _email, password: _password);
-      _user = await mockLogin(input);
-      return Screen.home;
+      final result = await _authService.signIn(email: _email, password: _password);
+      return result.fold(
+        (error) {
+          _errorMessage = error.message;
+          return null;
+        },
+        (user) {
+          _user = user;
+          return Screen.home;
+        },
+      );
     } catch (e) {
       _errorMessage = e.toString();
       return null;

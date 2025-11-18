@@ -1,9 +1,11 @@
 import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/core/models/transaction_model.dart';
-import 'package:financy_control/services/mock_repository/mock_repository.dart';
+import 'package:financy_control/locator.dart';
+import 'package:financy_control/repositories/transaction_repository.dart';
 import 'package:flutter/foundation.dart';
 
 class TransactionsViewModel extends ChangeNotifier {
+  final TransactionRepository _repository = locator<TransactionRepository>();
   List<TransactionModel> _transactions = [];
   bool _isLoading = false;
   String? _errorMessage;
@@ -61,9 +63,13 @@ class TransactionsViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      _transactions = await mockGetTransactions(
+      final result = await _repository.getTransactions(
         startDate: _startDate,
         endDate: _endDate,
+      );
+      result.fold(
+        (error) => _errorMessage = error.message,
+        (data) => _transactions = data,
       );
     } catch (e) {
       _errorMessage = e.toString();
@@ -81,7 +87,14 @@ class TransactionsViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      return await mockCreateTransaction(input);
+      final result = await _repository.createTransaction(input);
+      return result.fold(
+        (error) {
+          _errorMessage = error.message;
+          return null;
+        },
+        (data) => data,
+      );
     } catch (e) {
       _errorMessage = e.toString();
       return null;
@@ -100,7 +113,14 @@ class TransactionsViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      return await mockUpdateTransaction(id, input);
+      final result = await _repository.updateTransaction(id, input);
+      return result.fold(
+        (error) {
+          _errorMessage = error.message;
+          return null;
+        },
+        (data) => data,
+      );
     } catch (e) {
       _errorMessage = e.toString();
       return null;
@@ -116,7 +136,14 @@ class TransactionsViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      return await mockDeleteTransaction(id);
+      final result = await _repository.deleteTransaction(id);
+      return result.fold(
+        (error) {
+          _errorMessage = error.message;
+          return false;
+        },
+        (data) => data,
+      );
     } catch (e) {
       _errorMessage = e.toString();
       return false;
