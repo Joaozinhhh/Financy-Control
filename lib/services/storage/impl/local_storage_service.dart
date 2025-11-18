@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:financy_control/core/models/transaction_model.dart';
 import 'package:financy_control/core/models/user_model.dart';
+import 'package:financy_control/services/storage/storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service for managing local data persistence using SharedPreferences
-class LocalStorageService {
+class LocalStorageService implements StorageService {
   LocalStorageService._();
   static LocalStorageService? _instance;
   factory LocalStorageService() => _instance ??= LocalStorageService._();
@@ -18,6 +19,7 @@ class LocalStorageService {
   static const String _keyTransactions = 'transactions';
 
   /// Initialize SharedPreferences instance
+  @override
   Future<void> init() async {
     _prefs ??= await SharedPreferences.getInstance();
   }
@@ -34,6 +36,7 @@ class LocalStorageService {
   // ==================== User Management ====================
 
   /// Save a new user with password (password stored as hash for basic security)
+  @override
   Future<bool> saveUser({
     required String id,
     required String name,
@@ -67,6 +70,7 @@ class LocalStorageService {
   }
 
   /// Verify user credentials
+  @override
   Future<UserModel?> verifyCredentials({
     required String email,
     required String password,
@@ -89,6 +93,7 @@ class LocalStorageService {
   }
 
   /// Get user by email
+  @override
   Future<UserModel?> getUserByEmail(String email) async {
     final users = await _getAllUsers();
     
@@ -105,11 +110,13 @@ class LocalStorageService {
   }
 
   /// Set current logged-in user
+  @override
   Future<bool> setCurrentUser(String userId) async {
     return _storage.setString(_keyCurrentUserId, userId);
   }
 
   /// Get current logged-in user
+  @override
   Future<UserModel?> getCurrentUser() async {
     final userId = _storage.getString(_keyCurrentUserId);
     if (userId == null) return null;
@@ -128,11 +135,13 @@ class LocalStorageService {
   }
 
   /// Clear current user (logout)
+  @override
   Future<bool> clearCurrentUser() async {
     return _storage.remove(_keyCurrentUserId);
   }
 
   /// Update user name
+  @override
   Future<bool> updateUserName(String userId, String newName) async {
     final users = await _getAllUsers();
     final index = users.indexWhere((u) => u['id'] == userId);
@@ -144,14 +153,14 @@ class LocalStorageService {
   }
 
   /// Update user password
+  @override
   Future<bool> updateUserPassword(
     String userId,
-    String oldPassword,
     String newPassword,
   ) async {
     final users = await _getAllUsers();
     final index = users.indexWhere(
-      (u) => u['id'] == userId && u['password'] == oldPassword,
+      (u) => u['id'] == userId,
     );
     
     if (index == -1) return false;
@@ -163,6 +172,7 @@ class LocalStorageService {
   // ==================== Transaction Management ====================
 
   /// Save a transaction
+  @override
   Future<bool> saveTransaction(TransactionModel transaction) async {
     final transactions = await _getAllTransactions();
     
@@ -174,6 +184,7 @@ class LocalStorageService {
   }
 
   /// Get all transactions (optionally filtered by date range)
+  @override
   Future<List<TransactionModel>> getTransactions({
     DateTime? startDate,
     DateTime? endDate,
@@ -210,6 +221,7 @@ class LocalStorageService {
   }
 
   /// Delete a transaction by ID
+  @override
   Future<bool> deleteTransaction(String id) async {
     final transactions = await _getAllTransactions();
     transactions.removeWhere((t) => t['id'] == id);
@@ -217,6 +229,7 @@ class LocalStorageService {
   }
 
   /// Get transaction by ID
+  @override
   Future<TransactionModel?> getTransactionById(String id) async {
     final transactions = await _getAllTransactions();
     
@@ -229,6 +242,7 @@ class LocalStorageService {
   }
 
   /// Calculate total balance from all transactions
+  @override
   Future<double> getBalance() async {
     final transactions = await getTransactions();
     return transactions.fold<double>(
@@ -240,6 +254,7 @@ class LocalStorageService {
   // ==================== Utility Methods ====================
 
   /// Clear all data (useful for testing or reset)
+  @override
   Future<bool> clearAll() async {
     await _storage.remove(_keyUsers);
     await _storage.remove(_keyCurrentUserId);
