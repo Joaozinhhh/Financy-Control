@@ -1,4 +1,5 @@
 import 'package:financy_control/core/components/buttons.dart';
+import 'package:financy_control/core/components/constants.dart';
 import 'package:financy_control/core/components/textfields.dart';
 import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/router.dart';
@@ -46,16 +47,25 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                   decoration: const BoxDecoration(
                     color: Color(0xff38b6ff),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
+
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Row(
+                      Stack(
                         children: [
-                          Expanded(
-                            child: Image(
-                              image: AssetImage('assets/images/logo.png'),
-                            ),
+                          const Row(
+                            children: [
+                              Expanded(
+                                child: Image(
+                                  image: AssetImage('assets/images/logo.png'),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Positioned(
+                            top: MediaQuery.paddingOf(context).top,
+                            right: 0,
+                            child: kDefaultUrlLauncher,
                           ),
                         ],
                       ),
@@ -67,33 +77,39 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      FCTextField(
-                        onChanged: _viewModel.setEmail,
-                        decoration: const InputDecoration().copyWith(
-                          hintText: 'Email',
-                          prefixIcon: const Icon(Icons.email),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                        child: FCTextField(
+                          onChanged: _viewModel.setEmail,
+                          decoration: const InputDecoration().copyWith(
+                            hintText: 'Email',
+                            prefixIcon: const Icon(Icons.email),
+                          ),
+                          cursorColor: Theme.brightnessOf(context) == Brightness.dark ? Colors.white : Colors.black,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: validateEmail,
                         ),
-                        cursorColor: Theme.brightnessOf(context) == Brightness.dark ? Colors.white : Colors.black,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: validateEmail,
                       ),
                       const SizedBox(height: 16),
-                      FCTextField(
-                        decoration: const InputDecoration().copyWith(
-                          hintText: 'Password',
-                          prefixIcon: const Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _viewModel.passwordVisible ? Icons.visibility : Icons.visibility_off,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                        child: FCTextField(
+                          decoration: const InputDecoration().copyWith(
+                            hintText: 'Password',
+                            prefixIcon: const Icon(Icons.lock),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _viewModel.passwordVisible ? Icons.visibility : Icons.visibility_off,
+                              ),
+                              onPressed: _viewModel.toggleVisibility,
                             ),
-                            onPressed: _viewModel.toggleVisibility,
                           ),
+                          onChanged: _viewModel.setPassword,
+                          obscureText: !_viewModel.passwordVisible,
+                          keyboardType: TextInputType.visiblePassword,
+                          cursorColor: Theme.brightnessOf(context) == Brightness.dark ? Colors.white : Colors.black,
+                          validator: validatePassword,
                         ),
-                        onChanged: _viewModel.setPassword,
-                        obscureText: !_viewModel.passwordVisible,
-                        keyboardType: TextInputType.visiblePassword,
-                        cursorColor: Theme.brightnessOf(context) == Brightness.dark ? Colors.white : Colors.black,
-                        validator: validatePassword,
                       ),
                       const SizedBox(height: 64),
                     ],

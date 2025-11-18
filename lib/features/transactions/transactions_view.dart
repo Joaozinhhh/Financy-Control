@@ -121,6 +121,7 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
         title: const Text(
           'Transactions',
         ),
+        actions: [kDefaultUrlLauncher],
       ),
       body: Column(
         children: [
@@ -136,7 +137,7 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
             child: SafeArea(
               bottom: false,
               child: Container(
-                height: 64 + MediaQuery.paddingOf(context).top,
+                height: 128,
                 alignment: Alignment.center,
               ),
             ),
@@ -145,6 +146,7 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               IconButton(
+                color: Theme.of(context).colorScheme.primary,
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => _navigateDateRange('previous'),
               ),
@@ -197,6 +199,7 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
                 ),
               ),
               IconButton(
+                color: Theme.of(context).colorScheme.primary,
                 icon: const Icon(Icons.arrow_forward),
                 onPressed: () => _navigateDateRange('next'),
               ),

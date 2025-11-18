@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:financy_control/core/components/constants.dart';
 import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/features/statistics/statistics_view_model.dart';
@@ -139,141 +140,142 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
       appBar: AppBar(
         flexibleSpace: kFlexibleSpace,
         title: const Text('Statistics'),
+        actions: [kDefaultUrlLauncher],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                color: Color(0xff38b6ff),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
-                ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Container(
-                  alignment: Alignment.center,
-                  constraints: const BoxConstraints.tightFor(height: 128),
-                ),
+      body: Column(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              color: Color(0xff38b6ff),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(32),
+                bottomRight: Radius.circular(32),
               ),
             ),
-            _viewModel.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _viewModel.errorMessage != null
-                ? Center(child: Text('Error: ${_viewModel.errorMessage}'))
-                : Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _RangeButton(
-                                label: 'Day',
-                                isSelected: _selectedRange == 'Day',
-                                onTap: () => _updateDateRange('Day'),
+            child: SafeArea(
+              bottom: false,
+              child: Container(
+                alignment: Alignment.center,
+                constraints: const BoxConstraints.tightFor(height: 128),
+              ),
+            ),
+          ),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _viewModel.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _viewModel.errorMessage != null
+                  ? Center(child: Text('Error: ${_viewModel.errorMessage}'))
+                  : SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _RangeButton(
+                                  label: 'Day',
+                                  isSelected: _selectedRange == 'Day',
+                                  onTap: () => _updateDateRange('Day'),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: _RangeButton(
-                                label: 'Week',
-                                isSelected: _selectedRange == 'Week',
-                                onTap: () => _updateDateRange('Week'),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _RangeButton(
+                                  label: 'Week',
+                                  isSelected: _selectedRange == 'Week',
+                                  onTap: () => _updateDateRange('Week'),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: _RangeButton(
-                                label: 'Month',
-                                isSelected: _selectedRange == 'Month',
-                                onTap: () => _updateDateRange('Month'),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _RangeButton(
+                                  label: 'Month',
+                                  isSelected: _selectedRange == 'Month',
+                                  onTap: () => _updateDateRange('Month'),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: _RangeButton(
-                                label: 'Year',
-                                isSelected: _selectedRange == 'Year',
-                                onTap: () => _updateDateRange('Year'),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Date navigation
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back),
-                              onPressed: () => _navigateDateRange('previous'),
-                            ),
-                            Text(
-                              _currentRangeDisplay,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.arrow_forward),
-                              onPressed: () => _navigateDateRange('next'),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Income and Expense cards
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _SummaryCard(
-                                title: 'Income',
-                                amount: _viewModel.totalIncome,
-                                color: Colors.green,
-                                icon: Icons.arrow_upward,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _SummaryCard(
-                                title: 'Expenses',
-                                amount: _viewModel.totalExpense,
-                                color: Colors.red,
-                                icon: Icons.arrow_downward,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Chart section
-                        if (_viewModel.transactionCount > 0) ...[
-                          SegmentedButton<bool>(
-                            segments: const [
-                              ButtonSegment<bool>(
-                                value: false,
-                                label: Text('Expenses'),
-                                icon: Icon(Icons.arrow_downward, size: 16),
-                              ),
-                              ButtonSegment<bool>(
-                                value: true,
-                                label: Text('Income'),
-                                icon: Icon(Icons.arrow_upward, size: 16),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _RangeButton(
+                                  label: 'Year',
+                                  isSelected: _selectedRange == 'Year',
+                                  onTap: () => _updateDateRange('Year'),
+                                ),
                               ),
                             ],
-                            selected: {_showIncomeCategories},
-                            onSelectionChanged: (Set<bool> newSelection) => setState(
-                              () => _showIncomeCategories = newSelection.first,
-                            ),
                           ),
-                          const SizedBox(height: 12),
-                          Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
+                          const SizedBox(height: 16),
+
+                          // Date navigation
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.arrow_back),
+                                color: Theme.of(context).colorScheme.primary,
+                                onPressed: () => _navigateDateRange('previous'),
+                              ),
+                              Text(
+                                _currentRangeDisplay,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.arrow_forward),
+                                color: Theme.of(context).colorScheme.primary,
+                                onPressed: () => _navigateDateRange('next'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Income and Expense cards
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _SummaryCard(
+                                  title: 'Income',
+                                  amount: _viewModel.totalIncome,
+                                  color: Colors.green,
+                                  icon: Icons.arrow_upward,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _SummaryCard(
+                                  title: 'Expenses',
+                                  amount: _viewModel.totalExpense,
+                                  color: Colors.red,
+                                  icon: Icons.arrow_downward,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Chart section
+                          if (_viewModel.transactionCount > 0) ...[
+                            SegmentedButton<bool>(
+                              segments: const [
+                                ButtonSegment<bool>(
+                                  value: false,
+                                  label: Text('Expenses'),
+                                  icon: Icon(Icons.arrow_downward, size: 16),
+                                ),
+                                ButtonSegment<bool>(
+                                  value: true,
+                                  label: Text('Income'),
+                                  icon: Icon(Icons.arrow_upward, size: 16),
+                                ),
+                              ],
+                              selected: {_showIncomeCategories},
+                              onSelectionChanged: (Set<bool> newSelection) => setState(
+                                () => _showIncomeCategories = newSelection.first,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Card(
                               child: SizedBox(
                                 height: 300,
                                 child: _CategoryPieChartWidget(
@@ -284,74 +286,74 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 24),
-                        ],
+                            const SizedBox(height: 24),
+                          ],
 
-                        // Top Transactions
-                        if (_viewModel.topTransactions.isNotEmpty) ...[
-                          Text(
-                            'Top Transactions',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 12),
-                          ..._viewModel.topTransactions.map(
-                            (transaction) => Card(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor: transaction.category.income
-                                      ? Colors.green.withValues(alpha: 0.2)
-                                      : Colors.red.withValues(alpha: 0.2),
-                                  child: Icon(
-                                    transaction.category.income ? Icons.arrow_upward : Icons.arrow_downward,
-                                    color: transaction.category.income ? Colors.green : Colors.red,
+                          // Top Transactions
+                          if (_viewModel.topTransactions.isNotEmpty) ...[
+                            Text(
+                              'Top Transactions',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 12),
+                            ..._viewModel.topTransactions.map(
+                              (transaction) => Card(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: transaction.category.income
+                                        ? Colors.green.withValues(alpha: 0.2)
+                                        : Colors.red.withValues(alpha: 0.2),
+                                    child: Icon(
+                                      transaction.category.income ? Icons.arrow_upward : Icons.arrow_downward,
+                                      color: transaction.category.income ? Colors.green : Colors.red,
+                                    ),
                                   ),
-                                ),
-                                title: Text(transaction.description),
-                                subtitle: Text(
-                                  '${transaction.category.description.capitalize()} - ${DateFormat.MMMd().format(transaction.date)}',
-                                ),
-                                trailing: Text(
-                                  NumberFormat.simpleCurrency().format(
-                                    transaction.amount,
+                                  title: Text(transaction.description),
+                                  subtitle: Text(
+                                    '${transaction.category.description.capitalize()} - ${DateFormat.MMMd().format(transaction.date)}',
                                   ),
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: transaction.category.income ? Colors.green : Colors.red,
-                                    fontWeight: FontWeight.bold,
+                                  trailing: Text(
+                                    NumberFormat.simpleCurrency().format(transaction.amount),
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      color: transaction.category.income ? Colors.green : Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
 
-                        // Empty state
-                        if (_viewModel.transactionCount == 0)
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(32),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.bar_chart,
-                                    size: 64,
-                                    color: Colors.grey[400],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'No transactions in this period',
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
-                                  ),
-                                ],
+                          // Empty state
+                          if (_viewModel.transactionCount == 0)
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(32),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.bar_chart,
+                                      size: 64,
+                                      color: Colors.grey[400],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'No transactions in this period',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -486,7 +488,7 @@ class _CategoryPieChartWidgetState extends State<_CategoryPieChartWidget> {
     return Row(
       children: [
         Expanded(
-          flex: 3,
+          flex: 7,
           child: PieChart(
             PieChartData(
               pieTouchData: PieTouchData(
@@ -503,13 +505,11 @@ class _CategoryPieChartWidgetState extends State<_CategoryPieChartWidget> {
                 },
               ),
               borderData: FlBorderData(show: false),
-              sectionsSpace: 2,
-              centerSpaceRadius: 40,
-              sections: widget.categories.asMap().entries.map((entry) {
-                final index = entry.key;
-                final category = entry.value;
-                final percentage = (category.total / total * 100).toStringAsFixed(1);
+              sectionsSpace: 4,
+              centerSpaceRadius: 48,
+              sections: widget.categories.mapIndexed((index, category) {
                 final isTouched = index == touchedIndex;
+                final percentage = (category.total / total * 100).toStringAsFixed(1);
 
                 return PieChartSectionData(
                   color: _categoryColors[index % _categoryColors.length],
@@ -527,29 +527,26 @@ class _CategoryPieChartWidgetState extends State<_CategoryPieChartWidget> {
           ),
         ),
         Expanded(
-          flex: 2,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: widget.categories.asMap().entries.map((entry) {
-                final index = entry.key;
-                final category = entry.value;
-                final percentage = (category.total / total * 100).toStringAsFixed(1);
-                final color = _categoryColors[index % _categoryColors.length];
+          flex: 3,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: widget.categories.asMap().entries.map((entry) {
+              final index = entry.key;
+              final category = entry.value;
+              final percentage = (category.total / total * 100).toStringAsFixed(1);
+              final color = _categoryColors[index % _categoryColors.length];
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _CategoryLegendItem(
-                    color: color,
-                    label: category.category.description.capitalize(),
-                    value: category.total,
-                    percentage: percentage,
-                    count: category.count,
-                  ),
-                );
-              }).toList(),
-            ),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _CategoryLegendItem(
+                  color: color,
+                  label: category.category.description.capitalize(),
+                  value: category.total,
+                  percentage: percentage,
+                  count: category.count,
+                ),
+              );
+            }).toList(),
           ),
         ),
       ],

@@ -151,232 +151,225 @@ class _ReportsViewState extends State<ReportsView> with GoRouterAware {
       appBar: AppBar(
         flexibleSpace: kFlexibleSpace,
         title: const Text('Reports'),
-        actions: [
-          if (_viewModel.transactions.isNotEmpty)
-            IconButton(
-              icon: _viewModel.isGeneratingPdf
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.picture_as_pdf),
-              onPressed: _viewModel.isGeneratingPdf ? null : _showExportOptions,
-              tooltip: 'Export PDF',
-            ),
-        ],
+        actions: [kDefaultUrlLauncher],
       ),
-      body: _viewModel.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _viewModel.errorMessage != null && !_viewModel.errorMessage!.contains('PDF saved')
-          ? Center(child: Text('Error: ${_viewModel.errorMessage}'))
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: Color(0xff38b6ff),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(32),
-                        bottomRight: Radius.circular(32),
-                      ),
-                    ),
-                    child: SafeArea(
-                      bottom: false,
-                      child: Container(
-                        alignment: Alignment.center,
-                        constraints: const BoxConstraints.tightFor(height: 128),
-                      ),
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Date range selector
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back),
-                              onPressed: _selectedRange == 'All' ? null : () => _navigateDateRange('previous'),
-                            ),
-                            Flexible(
-                              child: DefaultTextStyle(
-                                style: Theme.of(context).textTheme.bodyMedium!,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    PopupMenuButton<String>(
-                                      constraints: const BoxConstraints.tightFor(width: 100),
-                                      padding: EdgeInsets.zero,
-                                      menuPadding: EdgeInsets.zero,
-                                      onSelected: _updateDateRange,
-                                      itemBuilder: (context) => const [
-                                        PopupMenuItem(
-                                          value: 'Week',
-                                          child: Center(child: Text('Week')),
-                                        ),
-                                        PopupMenuItem(
-                                          value: 'Month',
-                                          child: Center(child: Text('Month')),
-                                        ),
-                                        PopupMenuItem(
-                                          value: 'Year',
-                                          child: Center(child: Text('Year')),
-                                        ),
-                                        PopupMenuItem(
-                                          value: 'All',
-                                          child: Center(child: Text('All Time')),
-                                        ),
-                                      ],
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints.tightFor(
-                                          width: 100,
-                                          height: kMinInteractiveDimension,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            _currentRangeDisplay,
-                                            textAlign: TextAlign.center,
+      body: Column(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              color: Color(0xff38b6ff),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(32),
+                bottomRight: Radius.circular(32),
+              ),
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: Container(
+                alignment: Alignment.center,
+                constraints: const BoxConstraints.tightFor(height: 128),
+              ),
+            ),
+          ),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _viewModel.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _viewModel.errorMessage != null
+                  ? Center(child: Text('Error: ${_viewModel.errorMessage}'))
+                  : SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Date range selector
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              IconButton(
+                                color: Theme.of(context).colorScheme.primary,
+                                icon: const Icon(Icons.arrow_back),
+                                onPressed: _selectedRange == 'All' ? null : () => _navigateDateRange('previous'),
+                              ),
+                              Flexible(
+                                child: DefaultTextStyle(
+                                  style: Theme.of(context).textTheme.bodyMedium!,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      PopupMenuButton<String>(
+                                        constraints: const BoxConstraints.tightFor(width: 100),
+                                        padding: EdgeInsets.zero,
+                                        menuPadding: EdgeInsets.zero,
+                                        onSelected: _updateDateRange,
+                                        itemBuilder: (context) => const [
+                                          PopupMenuItem(
+                                            value: 'Week',
+                                            child: Center(child: Text('Week')),
+                                          ),
+                                          PopupMenuItem(
+                                            value: 'Month',
+                                            child: Center(child: Text('Month')),
+                                          ),
+                                          PopupMenuItem(
+                                            value: 'Year',
+                                            child: Center(child: Text('Year')),
+                                          ),
+                                          PopupMenuItem(
+                                            value: 'All',
+                                            child: Center(child: Text('All Time')),
+                                          ),
+                                        ],
+                                        child: ConstrainedBox(
+                                          constraints: const BoxConstraints.tightFor(
+                                            width: 100,
+                                            height: kMinInteractiveDimension,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              _currentRangeDisplay,
+                                              textAlign: TextAlign.center,
+                                            ),
                                           ),
                                         ),
                                       ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                color: Theme.of(context).colorScheme.primary,
+                                icon: const Icon(Icons.arrow_forward),
+                                onPressed: _selectedRange == 'All' ? null : () => _navigateDateRange('next'),
+                              ),
+                            ],
+                          ),
+
+                          // Summary Section
+                          Text(
+                            'Report Summary',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 16),
+                          _SummaryCard(
+                            title: 'Total Income',
+                            value: '\$${_viewModel.totalIncome.toStringAsFixed(2)}',
+                            color: Colors.green,
+                            icon: Icons.arrow_upward,
+                          ),
+                          const SizedBox(height: 8),
+                          _SummaryCard(
+                            title: 'Total Expenses',
+                            value: '\$${_viewModel.totalExpense.toStringAsFixed(2)}',
+                            color: Colors.red,
+                            icon: Icons.arrow_downward,
+                          ),
+                          const SizedBox(height: 8),
+                          _SummaryCard(
+                            title: 'Net Balance',
+                            value: '\$${_viewModel.netBalance.toStringAsFixed(2)}',
+                            color: _viewModel.netBalance >= 0 ? Colors.blue : Colors.orange,
+                            icon: Icons.account_balance_wallet,
+                          ),
+                          const SizedBox(height: 8),
+                          _SummaryCard(
+                            title: 'Total Transactions',
+                            value: '${_viewModel.transactions.length}',
+                            color: Colors.purple,
+                            icon: Icons.list_alt,
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Category Breakdowns
+                          if (_viewModel.incomeCategories.isNotEmpty) ...[
+                            Text(
+                              'Income Breakdown',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 12),
+                            ..._viewModel.incomeCategories.map(
+                              (cat) => _CategoryReportTile(
+                                category: cat,
+                                color: Colors.green,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                          ],
+
+                          if (_viewModel.expenseCategories.isNotEmpty) ...[
+                            Text(
+                              'Expense Breakdown',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 12),
+                            ..._viewModel.expenseCategories.map(
+                              (cat) => _CategoryReportTile(
+                                category: cat,
+                                color: Colors.red,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                          ],
+
+                          // Export Button
+                          if (_viewModel.transactions.isNotEmpty)
+                            ElevatedButton.icon(
+                              onPressed: _viewModel.isGeneratingPdf ? null : _showExportOptions,
+                              icon: _viewModel.isGeneratingPdf
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.picture_as_pdf),
+                              label: Text(
+                                _viewModel.isGeneratingPdf ? 'Generating PDF...' : 'Export Report as PDF',
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.all(16),
+                              ),
+                            ),
+
+                          // Empty state
+                          if (_viewModel.transactions.isEmpty)
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(32),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.description_outlined,
+                                      size: 64,
+                                      color: Colors.grey[400],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'No transactions in this period',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Add some transactions to generate reports',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.arrow_forward),
-                              onPressed: _selectedRange == 'All' ? null : () => _navigateDateRange('next'),
-                            ),
-                          ],
-                        ),
-
-                        // Summary Section
-                        Text(
-                          'Report Summary',
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 16),
-                        _SummaryCard(
-                          title: 'Total Income',
-                          value: '\$${_viewModel.totalIncome.toStringAsFixed(2)}',
-                          color: Colors.green,
-                          icon: Icons.arrow_upward,
-                        ),
-                        const SizedBox(height: 8),
-                        _SummaryCard(
-                          title: 'Total Expenses',
-                          value: '\$${_viewModel.totalExpense.toStringAsFixed(2)}',
-                          color: Colors.red,
-                          icon: Icons.arrow_downward,
-                        ),
-                        const SizedBox(height: 8),
-                        _SummaryCard(
-                          title: 'Net Balance',
-                          value: '\$${_viewModel.netBalance.toStringAsFixed(2)}',
-                          color: _viewModel.netBalance >= 0 ? Colors.blue : Colors.orange,
-                          icon: Icons.account_balance_wallet,
-                        ),
-                        const SizedBox(height: 8),
-                        _SummaryCard(
-                          title: 'Total Transactions',
-                          value: '${_viewModel.transactions.length}',
-                          color: Colors.purple,
-                          icon: Icons.list_alt,
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Category Breakdowns
-                        if (_viewModel.incomeCategories.isNotEmpty) ...[
-                          Text(
-                            'Income Breakdown',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 12),
-                          ..._viewModel.incomeCategories.map(
-                            (cat) => _CategoryReportTile(
-                              category: cat,
-                              color: Colors.green,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
                         ],
-
-                        if (_viewModel.expenseCategories.isNotEmpty) ...[
-                          Text(
-                            'Expense Breakdown',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 12),
-                          ..._viewModel.expenseCategories.map(
-                            (cat) => _CategoryReportTile(
-                              category: cat,
-                              color: Colors.red,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                        ],
-
-                        // Export Button
-                        if (_viewModel.transactions.isNotEmpty)
-                          ElevatedButton.icon(
-                            onPressed: _viewModel.isGeneratingPdf ? null : _showExportOptions,
-                            icon: _viewModel.isGeneratingPdf
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Icon(Icons.picture_as_pdf),
-                            label: Text(_viewModel.isGeneratingPdf ? 'Generating PDF...' : 'Export Report as PDF'),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.all(16),
-                            ),
-                          ),
-
-                        // Empty state
-                        if (_viewModel.transactions.isEmpty)
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(32),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.description_outlined,
-                                    size: 64,
-                                    color: Colors.grey[400],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'No transactions in this period',
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Add some transactions to generate reports',
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
             ),
+          ),
+        ],
+      ),
     );
   }
 }
