@@ -1,4 +1,5 @@
 import 'package:financy_control/core/extensions.dart';
+import 'package:financy_control/router.dart';
 import 'package:financy_control/services/mock_repository/mock_repository.dart';
 import 'package:flutter/material.dart';
 
@@ -69,16 +70,17 @@ class ProfileViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> logout() async {
+  Future<Screen?> logout() async {
     _isLoading = true;
     _errorMessage = null;
     rebuild();
 
     try {
-      return await mockLogout();
+      await mockLogout();
+      return Screen.signIn;
     } catch (e) {
       _errorMessage = e.toString();
-      return false;
+      return null;
     } finally {
       _isLoading = false;
       rebuild();

@@ -50,7 +50,7 @@ class StatisticsViewModel extends ChangeNotifier {
   double get totalExpense {
     return _transactions
         .where((t) => t.category.expense)
-        .fold(0.0, (sum, t) => sum + t.amount.abs());
+        .fold(0.0, (sum, t) => sum + t.amount);
   }
 
   double get netBalance => totalIncome - totalExpense;
@@ -83,7 +83,7 @@ class StatisticsViewModel extends ChangeNotifier {
     }
 
     return grouped.entries.map((entry) {
-      final total = entry.value.fold(0.0, (sum, t) => sum + t.amount.abs());
+      final total = entry.value.fold(0.0, (sum, t) => sum + t.amount);
       return CategoryStatistic(
         category: entry.key,
         total: total,
@@ -119,7 +119,7 @@ class StatisticsViewModel extends ChangeNotifier {
         grouped[date] = DailyStatistic(
           date: date,
           income: grouped[date]!.income,
-          expense: grouped[date]!.expense + transaction.amount.abs(),
+          expense: grouped[date]!.expense + transaction.amount,
         );
       }
     }
