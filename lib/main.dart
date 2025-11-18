@@ -44,7 +44,7 @@ ThemeData get _lightTheme {
     appBarTheme: const AppBarTheme(
       centerTitle: true,
       elevation: 0,
-      titleTextStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 32),
+      titleTextStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: IconButton.styleFrom(
@@ -135,7 +135,7 @@ ThemeData get _darkTheme {
     appBarTheme: const AppBarTheme(
       centerTitle: true,
       elevation: 0,
-      titleTextStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 32),
+      titleTextStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
     ),
     cardTheme: const CardThemeData(
       elevation: 0,
