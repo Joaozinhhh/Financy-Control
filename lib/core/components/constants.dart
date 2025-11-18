@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const kFlexibleSpace = SizedBox.expand(
   child: DecoratedBox(
@@ -34,4 +35,12 @@ const kLightDefaultInputDecoration = InputDecoration(
   disabledBorder: kDefaultLightBorder,
   suffixIconColor: Color(0xFFFFFFFF),
   prefixIconColor: Color(0xFFFFFFFF),
+);
+
+Widget get kDefaultUrlLauncher => Padding(
+  padding: const EdgeInsets.all(8.0),
+  child: IconButton(
+    icon: const Icon(Icons.info),
+    onPressed: () => launchUrl(Uri.parse('https://example.com')), // TODO: replace with actual URL
+  ),
 );
