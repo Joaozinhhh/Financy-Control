@@ -1,17 +1,18 @@
 import 'package:financy_control/core/models/transaction_model.dart';
-import 'package:financy_control/services/local_storage/local_storage_service.dart';
+import 'package:financy_control/services/storage/impl/local_storage_service.dart';
+import 'package:financy_control/services/storage/storage_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  late LocalStorageService storage;
+  late StorageService storage;
 
   setUp(() async {
     // Set up mock SharedPreferences with empty values
     SharedPreferences.setMockInitialValues({});
     storage = LocalStorageService();
     await storage.init();
-    
+
     // Clear all data before each test
     await storage.clearAll();
   });
