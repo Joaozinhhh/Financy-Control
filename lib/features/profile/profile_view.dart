@@ -41,7 +41,7 @@ class _ProfileViewState extends State<ProfileView> {
       appBar: AppBar(
         flexibleSpace: kFlexibleSpace,
         title: const Text('Profile'),
-        actions: [kDefaultUrlLauncher],
+        actions: [launchUrl('https://example.com')], // TODO: replace with actual URL
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,
@@ -70,11 +70,10 @@ class _ProfileViewState extends State<ProfileView> {
                         constraints: BoxConstraints.tight(
                           const Size.square(128),
                         ),
-                        child: FittedBox(
+                        child: const FittedBox(
                           child: CircleAvatar(
                             radius: 50,
-                            backgroundImage: _viewModel.photoUrl.isNotEmpty ? NetworkImage(_viewModel.photoUrl) : null,
-                            child: _viewModel.photoUrl.isEmpty ? const Icon(Icons.person) : null,
+                            child: Icon(Icons.person),
                           ),
                         ),
                       ),

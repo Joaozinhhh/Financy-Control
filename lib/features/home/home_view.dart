@@ -225,7 +225,7 @@ class _HomeViewState extends State<HomeView> with GoRouterAware {
                   ),
                   Positioned(
                     right: 0,
-                    child: kDefaultUrlLauncher,
+                    child: launchUrl('https://example.com'), // TODO: replace with actual URL
                   ),
                 ],
               ),

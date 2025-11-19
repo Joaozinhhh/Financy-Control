@@ -140,7 +140,7 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
       appBar: AppBar(
         flexibleSpace: kFlexibleSpace,
         title: const Text('Statistics'),
-        actions: [kDefaultUrlLauncher],
+        actions: [launchUrl('https://example.com')], // TODO: replace with actual URL
       ),
       body: Column(
         children: [

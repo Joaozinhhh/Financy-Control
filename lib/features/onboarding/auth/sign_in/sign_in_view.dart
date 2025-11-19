@@ -65,7 +65,7 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                           Positioned(
                             top: MediaQuery.paddingOf(context).top,
                             right: 0,
-                            child: kDefaultUrlLauncher,
+                            child: launchUrl('https://example.com'), // TODO: replace with actual URL
                           ),
                         ],
                       ),

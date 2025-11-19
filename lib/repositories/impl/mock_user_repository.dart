@@ -28,7 +28,6 @@ class MockUserRepository implements UserRepository {
           id: user.id,
           name: user.name,
           email: user.email,
-          photoUrl: 'https://i.pravatar.cc/300',
         ),
       );
     } catch (e) {

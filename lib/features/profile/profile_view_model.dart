@@ -11,13 +11,11 @@ class ProfileViewModel extends ChangeNotifier {
 
   String _name = '';
   String _email = '';
-  String _photoUrl = '';
   bool _isLoading = false;
   String? _errorMessage;
 
   String get name => _name;
   String get email => _email;
-  String get photoUrl => _photoUrl;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -33,7 +31,6 @@ class ProfileViewModel extends ChangeNotifier {
         (user) {
           _name = user.name;
           _email = user.email;
-          _photoUrl = user.photoUrl ?? '';
         },
       );
     } catch (e) {

@@ -121,7 +121,7 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
         title: const Text(
           'Transactions',
         ),
-        actions: [kDefaultUrlLauncher],
+        actions: [launchUrl('https://example.com')], // TODO: replace with actual URL
       ),
       body: Column(
         children: [

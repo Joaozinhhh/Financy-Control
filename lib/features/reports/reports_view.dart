@@ -151,7 +151,7 @@ class _ReportsViewState extends State<ReportsView> with GoRouterAware {
       appBar: AppBar(
         flexibleSpace: kFlexibleSpace,
         title: const Text('Reports'),
-        actions: [kDefaultUrlLauncher],
+        actions: [launchUrl('https://example.com')], // TODO: replace with actual URL
       ),
       body: Column(
         children: [
