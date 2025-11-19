@@ -56,7 +56,14 @@ class _SplashViewState extends State<SplashView> {
                   ),
                 ],
               )
-            : const CircularProgressIndicator(),
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(child: Image.asset('assets/images/logo.png')),
+                  const SizedBox(height: 16),
+                  const Flexible(child: CircularProgressIndicator()),
+                ],
+              ),
       ),
     );
   }
