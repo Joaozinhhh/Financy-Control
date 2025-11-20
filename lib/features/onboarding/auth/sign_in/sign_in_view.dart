@@ -69,9 +69,9 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                           ),
                         ],
                       ),
-                      const Text(
-                        'Finance App',
-                        style: TextStyle(
+                      Text(
+                        context.translations.financeApp,
+                        style: const TextStyle(
                           fontSize: 32,
                           color: Colors.white,
                         ),
@@ -82,7 +82,7 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                         child: FCTextField(
                           onChanged: _viewModel.setEmail,
                           decoration: const InputDecoration().copyWith(
-                            hintText: 'Email',
+                            hintText: context.translations.email,
                             prefixIcon: const Icon(Icons.email),
                           ),
                           cursorColor: Theme.brightnessOf(context) == Brightness.dark ? Colors.white : Colors.black,
@@ -95,7 +95,7 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                         padding: const EdgeInsets.symmetric(horizontal: 32.0),
                         child: FCTextField(
                           decoration: const InputDecoration().copyWith(
-                            hintText: 'Password',
+                            hintText: context.translations.password,
                             prefixIcon: const Icon(Icons.lock),
                             suffixIcon: IconButton(
                               icon: Icon(
@@ -138,7 +138,7 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                               if (!context.mounted) return;
                               context.go(Screen.resetPassword.location);
                             },
-                            child: const Text('Forgot Password?'),
+                            child: Text(context.translations.forgotPassword),
                           ),
                           FCButton.primary(
                             style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
@@ -174,9 +174,9 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                                       color: Colors.white,
                                     ),
                                   )
-                                : const Text('Sign In'),
+                                : Text(context.translations.signIn),
                           ),
-                          const Text('or', style: TextStyle(fontSize: 16)),
+                          Text(context.translations.or, style: const TextStyle(fontSize: 16)),
                           FCButton.secondary(
                             style: Theme.of(context).textButtonTheme.style?.copyWith(
                               minimumSize: WidgetStateProperty.all<Size>(const Size(220, 50)),
@@ -185,8 +185,8 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                               if (!context.mounted) return;
                               context.go(Screen.signUp.location);
                             },
-                            child: const Text(
-                              "Don't have an account? Sign Up",
+                            child: Text(
+                              context.translations.dontHaveAccountSignUp,
                             ),
                           ),
                         ],

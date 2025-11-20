@@ -1,6 +1,7 @@
 import 'package:financy_control/core/components/buttons.dart';
 import 'package:financy_control/core/components/constants.dart';
 import 'package:financy_control/core/components/textfields.dart';
+import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/features/profile/profile_view_model.dart';
 import 'package:financy_control/locator.dart';
 import 'package:financy_control/router.dart';
@@ -40,7 +41,7 @@ class _ProfileViewState extends State<ProfileView> {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: kFlexibleSpace,
-        title: const Text('Profile'),
+        title: Text(context.translations.profileTitle),
         actions: [launchUrl('https://example.com')], // TODO: replace with actual URL
       ),
       body: Column(
@@ -108,12 +109,12 @@ class _ProfileViewState extends State<ProfileView> {
           const SizedBox(height: 20),
           ListTile(
             leading: const Icon(Icons.edit),
-            title: const Text('Change Name'),
+            title: Text(context.translations.changeName),
             onTap: () async {
               final newName = await _showInputBottomSheet(
                 context,
-                title: 'Change Name',
-                hint: 'Enter your new name',
+                title: context.translations.changeName,
+                hint: context.translations.enterNewName,
               );
               if (newName != null && newName.isNotEmpty) {
                 final success = await _viewModel.updateUserName(newName);
@@ -125,12 +126,12 @@ class _ProfileViewState extends State<ProfileView> {
           ),
           ListTile(
             leading: const Icon(Icons.lock),
-            title: const Text('Change Password'),
+            title: Text(context.translations.changePassword),
             onTap: () async {
               final newPassword = await _showInputBottomSheet(
                 context,
-                title: 'Change Password',
-                hint: 'Enter your new password',
+                title: context.translations.changePassword,
+                hint: context.translations.enterNewPassword,
                 obscureText: true,
               );
               if (newPassword != null && newPassword.isNotEmpty) {
@@ -141,7 +142,7 @@ class _ProfileViewState extends State<ProfileView> {
           // access reports
           ListTile(
             leading: const Icon(Icons.list_alt),
-            title: const Text('Access Reports'),
+            title: Text(context.translations.accessReports),
             onTap: () async {
               context.go(Screen.reports.location);
             },
@@ -149,7 +150,7 @@ class _ProfileViewState extends State<ProfileView> {
           const SizedBox(height: 16),
           ListTile(
             leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
+            title: Text(context.translations.logout),
             onTap: () async {
               final result = await _viewModel.logout();
               if (result != null && context.mounted) {
@@ -167,18 +168,18 @@ class _ProfileViewState extends State<ProfileView> {
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          title: const Text('Confirm Deletion'),
-                          content: const Text(
-                            'Are you sure you want to delete all your data? This action cannot be undone.',
+                          title: Text(context.translations.confirmDeletion),
+                          content: Text(
+                            context.translations.confirmDeletionBody,
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => context.pop(false),
-                              child: const Text('Cancel'),
+                              child: Text(context.translations.cancel),
                             ),
                             TextButton(
                               onPressed: () => context.pop(true),
-                              child: const Text('Delete'),
+                              child: Text(context.translations.delete),
                             ),
                           ],
                         );
@@ -195,7 +196,7 @@ class _ProfileViewState extends State<ProfileView> {
                       const Size(128, 32),
                     ),
                   ),
-                  child: const Text('Delete Data'),
+                  child: Text(context.translations.deleteData),
                 ),
               ),
             ),
@@ -265,7 +266,7 @@ class _ProfileViewState extends State<ProfileView> {
                       ),
                     ),
                     onPressed: () => context.pop(),
-                    child: const Text('Cancel'),
+                    child: Text(context.translations.cancel),
                   ),
                   const SizedBox(width: 8),
                   FCButton.primary(
@@ -275,7 +276,7 @@ class _ProfileViewState extends State<ProfileView> {
                       ),
                     ),
                     onPressed: () => context.pop(input),
-                    child: const Text('Save'),
+                    child: Text(context.translations.save),
                   ),
                 ],
               ),

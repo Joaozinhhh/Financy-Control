@@ -118,8 +118,8 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: kFlexibleSpace,
-        title: const Text(
-          'Transactions',
+        title: Text(
+          context.translations.transactionsTitle,
         ),
         actions: [launchUrl('https://example.com')], // TODO: replace with actual URL
       ),
@@ -160,21 +160,21 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
                       menuPadding: EdgeInsets.zero,
                       position: PopupMenuPosition.under,
                       onSelected: _updateDateRange,
-                      itemBuilder: (context) => const [
+                      itemBuilder: (context) => [
                         PopupMenuItem(
                           padding: EdgeInsets.zero,
                           value: 'Day',
-                          child: Center(child: Text('Day')),
+                          child: Center(child: Text(context.translations.day)),
                         ),
                         PopupMenuItem(
                           padding: EdgeInsets.zero,
                           value: 'Month',
-                          child: Center(child: Text('Month')),
+                          child: Center(child: Text(context.translations.month)),
                         ),
                         PopupMenuItem(
                           padding: EdgeInsets.zero,
                           value: 'Year',
-                          child: Center(child: Text('Year')),
+                          child: Center(child: Text(context.translations.year)),
                         ),
                       ],
                       child: Row(
@@ -209,9 +209,9 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
             child: _viewModel.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _viewModel.errorMessage != null
-                ? Center(child: Text('Error: ${_viewModel.errorMessage}'))
+                ? Center(child: Text('${context.translations.error}: ${_viewModel.errorMessage}'))
                 : _viewModel.transactions.isEmpty
-                ? const Center(child: Text('No transactions available.'))
+                ? Center(child: Text(context.translations.noTransactionsAvailable))
                 : ListView.builder(
                     itemCount: _viewModel.transactions.length,
                     itemBuilder: (context, index) {
@@ -310,10 +310,10 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
           ),
           title: Text(
             widget.transaction == null
-                ? 'Create Transaction'
+                ? context.translations.createTransaction
                 : widget._isEditMode
-                ? 'Edit Transaction'
-                : 'Transaction Details',
+                ? context.translations.editTransaction
+                : context.translations.transactionDetails,
           ),
         ),
         body: Stack(
@@ -372,7 +372,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                                       );
                                     }
 
-                                    final child = const Text('Income');
+                                    final child = Text(context.translations.income);
 
                                     return currentIndex == 0
                                         ? FCButton.primary(
@@ -408,7 +408,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                                       );
                                     }
 
-                                    final child = const Text('Expense');
+                                    final child = Text(context.translations.expenses);
                                     return currentIndex == 1
                                         ? FCButton.primary(
                                             style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
@@ -453,9 +453,9 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                                 initialValue: _amount?.toString(),
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration().copyWith(
-                                  labelText: 'Amount',
+                                  labelText: context.translations.amount,
                                 ),
-                                validator: (value) => value == null || value.isEmpty ? 'Enter an amount' : null,
+                                validator: (value) => value == null || value.isEmpty ? context.translations.enterAmount : null,
                                 onChanged: (value) {
                                   _amount = double.tryParse(value);
                                   _processValidationChange();
@@ -465,9 +465,9 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                               FCTextField(
                                 initialValue: _description,
                                 decoration: const InputDecoration().copyWith(
-                                  labelText: 'Description',
+                                  labelText: context.translations.description,
                                 ),
-                                validator: (value) => value == null || value.isEmpty ? 'Enter a description' : null,
+                                validator: (value) => value == null || value.isEmpty ? context.translations.enterDescription : null,
                                 onChanged: (value) {
                                   _description = value;
                                   _processValidationChange();
@@ -483,7 +483,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                                       : ExpenseCategory.values;
                                   return DropdownButtonFormField<TransactionCategory>(
                                     initialValue: selected,
-                                    hint: const Text('Select Category'),
+                                    hint: Text(context.translations.selectCategory),
                                     items: values
                                         .map(
                                           (c) => DropdownMenuItem<TransactionCategory>(
@@ -611,7 +611,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                                             context.pop(true);
                                           }
                                         : null,
-                                    child: const Text('Save'),
+                                    child: Text(context.translations.save),
                                   );
                                 },
                               ),
@@ -633,7 +633,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                                 initialValue: widget.transaction!.amount.abs().toString(),
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration().copyWith(
-                                  labelText: 'Amount',
+                                  labelText: context.translations.amount,
                                 ),
                                 onChanged: (value) {
                                   _amount = double.tryParse(value);
@@ -644,7 +644,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                               FCTextField(
                                 initialValue: widget.transaction!.description,
                                 decoration: const InputDecoration().copyWith(
-                                  labelText: 'Description',
+                                  labelText: context.translations.description,
                                 ),
                                 onChanged: (value) {
                                   _description = value;
@@ -753,7 +753,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                                   );
                                   context.pop(true);
                                 },
-                                child: const Text('Save Changes'),
+                                child: Text(context.translations.saveChanges),
                               ),
                             ],
                           ),
@@ -773,7 +773,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Amount:'),
+                                  Text('${context.translations.amount}:'),
                                   Text(
                                     NumberFormat.simpleCurrency().format(
                                       widget.transaction!.amount,
@@ -786,7 +786,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Date:'),
+                                  Text('${context.translations.date}:'),
                                   Text(
                                     DateFormat.yMMMd().format(
                                       widget.transaction!.date,
@@ -799,7 +799,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Category:'),
+                                  Text('${context.translations.category}:'),
                                   Text(
                                     widget.transaction!.category.description.capitalize(),
                                   ),
@@ -810,7 +810,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Description:'),
+                                  Text('${context.translations.description}:'),
                                   Text(
                                     widget.transaction!.description,
                                   ),
@@ -832,7 +832,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                                       extra: widget.transaction,
                                     );
                                   },
-                                  child: const Text('Edit'),
+                                  child: Text(context.translations.edit),
                                 ),
                               ),
                               // delete button
@@ -848,7 +848,7 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                                     );
                                     context.pop(true);
                                   },
-                                  child: const Text('Delete'),
+                                  child: Text(context.translations.delete),
                                 ),
                               ),
                             ],

@@ -53,13 +53,13 @@ class _SignUpViewState extends State<SignUpView> with FormValidators {
                     bottomRight: Radius.circular(32),
                   ),
                 ),
-                child: const DefaultTextStyle(
-                  style: TextStyle(
+                child: DefaultTextStyle(
+                  style: const TextStyle(
                     fontSize: 32,
                     color: Colors.white,
                   ),
                   child: Padding(
-                    padding: EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: SafeArea(
                       bottom: false,
                       child: Column(
@@ -67,16 +67,16 @@ class _SignUpViewState extends State<SignUpView> with FormValidators {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Vamos',
+                            context.translations.signUpHeaderL1,
                           ),
                           Text(
-                            'Criar sua',
-                            style: TextStyle(
+                            context.translations.signUpHeaderL2,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            'conta',
+                            context.translations.signUpHeaderL3,
                           ),
                         ],
                       ),
@@ -93,7 +93,7 @@ class _SignUpViewState extends State<SignUpView> with FormValidators {
                       FCTextField(
                         onChanged: _viewModel.setName,
                         decoration: const InputDecoration().copyWith(
-                          hintText: 'Name',
+                          hintText: context.translations.name,
                           prefixIcon: const Icon(Icons.person),
                         ),
                         keyboardType: TextInputType.name,
@@ -107,7 +107,7 @@ class _SignUpViewState extends State<SignUpView> with FormValidators {
                       FCTextField(
                         onChanged: _viewModel.setEmail,
                         decoration: const InputDecoration().copyWith(
-                          hintText: 'Email',
+                          hintText: context.translations.email,
                           prefixIcon: const Icon(Icons.email),
                         ),
                         keyboardType: TextInputType.emailAddress,
@@ -120,7 +120,7 @@ class _SignUpViewState extends State<SignUpView> with FormValidators {
                       FCTextField(
                         onChanged: _viewModel.setPassword,
                         decoration: const InputDecoration().copyWith(
-                          labelText: 'Password',
+                          labelText: context.translations.password,
                           suffixIcon: IconButton(
                             icon: Icon(_viewModel.passwordVisible ? Icons.visibility : Icons.visibility_off),
                             onPressed: _viewModel.toggleVisibility,
@@ -135,7 +135,7 @@ class _SignUpViewState extends State<SignUpView> with FormValidators {
                       FCTextField(
                         onChanged: _viewModel.setConfirmPassword,
                         decoration: const InputDecoration().copyWith(
-                          hintText: 'Confirm Password',
+                          hintText: context.translations.confirmPassword,
                           prefixIcon: const Icon(Icons.lock),
                           suffixIcon: IconButton(
                             icon: Icon(_viewModel.passwordVisible ? Icons.visibility : Icons.visibility_off),
@@ -194,7 +194,7 @@ class _SignUpViewState extends State<SignUpView> with FormValidators {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text('Sign Up'),
+                            : Text(context.translations.signUp),
                       ),
                       const SizedBox(height: 16),
                       FCButton.terciary(
@@ -203,7 +203,7 @@ class _SignUpViewState extends State<SignUpView> with FormValidators {
                           if (!context.mounted) return;
                           context.go(Screen.signIn.location);
                         },
-                        child: const Text("Already have an account? Sign In"),
+                        child: Text(context.translations.alreadyHaveAccountSignIn),
                       ),
                     ],
                   ),

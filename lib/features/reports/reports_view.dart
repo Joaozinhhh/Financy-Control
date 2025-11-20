@@ -123,8 +123,8 @@ class _ReportsViewState extends State<ReportsView> with GoRouterAware {
           children: [
             ListTile(
               leading: const Icon(Icons.share),
-              title: const Text('Share PDF'),
-              subtitle: const Text('Share via apps (email, messaging, etc.)'),
+              title: Text(context.translations.sharePdf),
+              subtitle: Text(context.translations.sharePdfSubtitle),
               onTap: () {
                 Navigator.pop(context);
                 _viewModel.generateAndSharePdf();
@@ -132,8 +132,8 @@ class _ReportsViewState extends State<ReportsView> with GoRouterAware {
             ),
             ListTile(
               leading: const Icon(Icons.print),
-              title: const Text('Print PDF'),
-              subtitle: const Text('Print or preview before saving'),
+              title: Text(context.translations.printPdf),
+              subtitle: Text(context.translations.printPdfSubtitle),
               onTap: () {
                 Navigator.pop(context);
                 _viewModel.printPdf();
@@ -150,7 +150,7 @@ class _ReportsViewState extends State<ReportsView> with GoRouterAware {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: kFlexibleSpace,
-        title: const Text('Reports'),
+        title: Text(context.translations.reportsTitle),
         actions: [launchUrl('https://example.com')], // TODO: replace with actual URL
       ),
       body: Column(
@@ -203,22 +203,22 @@ class _ReportsViewState extends State<ReportsView> with GoRouterAware {
                                         padding: EdgeInsets.zero,
                                         menuPadding: EdgeInsets.zero,
                                         onSelected: _updateDateRange,
-                                        itemBuilder: (context) => const [
+                                        itemBuilder: (context) => [
                                           PopupMenuItem(
                                             value: 'Week',
-                                            child: Center(child: Text('Week')),
+                                            child: Center(child: Text(context.translations.week)),
                                           ),
                                           PopupMenuItem(
                                             value: 'Month',
-                                            child: Center(child: Text('Month')),
+                                            child: Center(child: Text(context.translations.month)),
                                           ),
                                           PopupMenuItem(
                                             value: 'Year',
-                                            child: Center(child: Text('Year')),
+                                            child: Center(child: Text(context.translations.year)),
                                           ),
                                           PopupMenuItem(
                                             value: 'All',
-                                            child: Center(child: Text('All Time')),
+                                            child: Center(child: Text(context.translations.allTime)),
                                           ),
                                         ],
                                         child: ConstrainedBox(
@@ -248,33 +248,33 @@ class _ReportsViewState extends State<ReportsView> with GoRouterAware {
 
                           // Summary Section
                           Text(
-                            'Report Summary',
+                            context.translations.reportSummary,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 16),
                           _SummaryCard(
-                            title: 'Total Income',
+                            title: context.translations.totalIncome,
                             value: '\$${_viewModel.totalIncome.toStringAsFixed(2)}',
                             color: Colors.green,
                             icon: Icons.arrow_upward,
                           ),
                           const SizedBox(height: 8),
                           _SummaryCard(
-                            title: 'Total Expenses',
+                            title: context.translations.totalExpenses,
                             value: '\$${_viewModel.totalExpense.toStringAsFixed(2)}',
                             color: Colors.red,
                             icon: Icons.arrow_downward,
                           ),
                           const SizedBox(height: 8),
                           _SummaryCard(
-                            title: 'Net Balance',
+                            title: context.translations.netBalance,
                             value: '\$${_viewModel.netBalance.toStringAsFixed(2)}',
                             color: _viewModel.netBalance >= 0 ? Colors.blue : Colors.orange,
                             icon: Icons.account_balance_wallet,
                           ),
                           const SizedBox(height: 8),
                           _SummaryCard(
-                            title: 'Total Transactions',
+                            title: context.translations.totalTransactions,
                             value: '${_viewModel.transactions.length}',
                             color: Colors.purple,
                             icon: Icons.list_alt,
@@ -284,7 +284,7 @@ class _ReportsViewState extends State<ReportsView> with GoRouterAware {
                           // Category Breakdowns
                           if (_viewModel.incomeCategories.isNotEmpty) ...[
                             Text(
-                              'Income Breakdown',
+                              context.translations.incomeBreakdown,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                             const SizedBox(height: 12),
@@ -299,7 +299,7 @@ class _ReportsViewState extends State<ReportsView> with GoRouterAware {
 
                           if (_viewModel.expenseCategories.isNotEmpty) ...[
                             Text(
-                              'Expense Breakdown',
+                              context.translations.expenseBreakdown,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                             const SizedBox(height: 12),
@@ -326,7 +326,7 @@ class _ReportsViewState extends State<ReportsView> with GoRouterAware {
                                     )
                                   : const Icon(Icons.picture_as_pdf),
                               label: Text(
-                                _viewModel.isGeneratingPdf ? 'Generating PDF...' : 'Export Report as PDF',
+                                _viewModel.isGeneratingPdf ? context.translations.generatingPdf : context.translations.exportReportAsPdf,
                               ),
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.all(16),
@@ -347,14 +347,14 @@ class _ReportsViewState extends State<ReportsView> with GoRouterAware {
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
-                                      'No transactions in this period',
+                                      context.translations.noTransactionsInPeriod,
                                       style: Theme.of(
                                         context,
                                       ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      'Add some transactions to generate reports',
+                                      context.translations.addTransactionsToGenerateReports,
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),

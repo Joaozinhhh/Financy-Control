@@ -1,6 +1,8 @@
 import 'package:financy_control/core/components/constants.dart';
+import 'package:financy_control/l10n/gen/app_localizations.dart';
 import 'package:financy_control/router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'locator.dart';
 
@@ -20,6 +22,27 @@ class MainApp extends StatelessWidget {
       theme: _lightTheme,
       darkTheme: _darkTheme,
       themeMode: ThemeMode.system,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      localeListResolutionCallback: (locales, supported) {
+        if (locales != null) {
+          for (final locale in locales) {
+            if (supported.any(
+              (l) =>
+                  l.languageCode == locale.languageCode &&
+                  (l.countryCode == null || l.countryCode == locale.countryCode),
+            )) {
+              return locale;
+            }
+          }
+        }
+        return const Locale('en');
+      },
     );
   }
 }

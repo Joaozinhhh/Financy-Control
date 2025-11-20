@@ -95,7 +95,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView> with FormValidato
                         FCTextField(
                           onChanged: _viewModel.setEmail,
                           decoration: const InputDecoration().copyWith(
-                            hintText: 'Email',
+                            hintText: context.translations.email,
                             prefixIcon: const Icon(Icons.email),
                           ),
                           validator: validateEmail,
@@ -110,8 +110,8 @@ class _ResetPasswordViewState extends State<ResetPasswordView> with FormValidato
                                     if (!context.mounted) return;
                                     context.go(Screen.signIn.location);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Password reset link sent!'),
+                                      SnackBar(
+                                        content: Text(context.translations.passwordResetLinkSent),
                                       ),
                                     );
                                   } else if (_viewModel.errorMessage != null) {
@@ -127,7 +127,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView> with FormValidato
                               ? const CircularProgressIndicator(
                                   color: Colors.white,
                                 )
-                              : const Text('Reset Password'),
+                              : Text(context.translations.resetPassword),
                         ),
                         const SizedBox(height: 16),
                         FCButton.terciary(
@@ -139,7 +139,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView> with FormValidato
                             foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
                             minimumSize: WidgetStateProperty.all<Size>(const Size(220, 32)),
                           ),
-                          child: const Text('Back to Sign In'),
+                          child: Text(context.translations.backToSignIn),
                         ),
                       ],
                     ),

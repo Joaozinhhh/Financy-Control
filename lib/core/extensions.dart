@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 
+import 'package:financy_control/l10n/gen/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -113,4 +114,8 @@ class CapitalizerFormatter implements TextInputFormatter {
       selection: newValue.selection,
     );
   }
+}
+
+extension LocalizationsExt on BuildContext {
+  AppLocalizations get translations => AppLocalizations.of(this);
 }

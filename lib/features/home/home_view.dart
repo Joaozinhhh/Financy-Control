@@ -1,4 +1,5 @@
 import 'package:financy_control/core/components/constants.dart';
+import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/features/home/home_view_model.dart';
 import 'package:financy_control/router.dart';
 import 'package:flutter/material.dart';
@@ -70,7 +71,7 @@ class _HomeViewState extends State<HomeView> with GoRouterAware {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Welcome back,',
+                              context.translations.welcomeBack,
                               style: TextStyle(
                                 fontSize: 16,
                                 color: const Color(0xFFFFFFFF).withValues(alpha: 0.9),
@@ -81,7 +82,7 @@ class _HomeViewState extends State<HomeView> with GoRouterAware {
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null && snapshot.data!.isNotEmpty) {
                                   return Text(
-                                    snapshot.data ?? 'Guest',
+                                    snapshot.data ?? context.translations.guest,
                                     style: const TextStyle(
                                       fontSize: 24,
                                       color: Color(0xFFFFFFFF),
@@ -120,9 +121,9 @@ class _HomeViewState extends State<HomeView> with GoRouterAware {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Balance',
-                                  style: TextStyle(
+                                Text(
+                                  context.translations.balance,
+                                  style: const TextStyle(
                                     fontSize: 16,
                                   ),
                                 ),
@@ -161,8 +162,8 @@ class _HomeViewState extends State<HomeView> with GoRouterAware {
                                           Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              const Text(
-                                                'Income',
+                                              Text(
+                                                context.translations.income,
                                               ),
                                               const SizedBox(height: 6),
                                               Text(
@@ -200,8 +201,8 @@ class _HomeViewState extends State<HomeView> with GoRouterAware {
                                           Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              const Text(
-                                                'Outcome',
+                                              Text(
+                                                context.translations.outcome,
                                               ),
                                               const SizedBox(height: 6),
                                               Text(
@@ -232,13 +233,13 @@ class _HomeViewState extends State<HomeView> with GoRouterAware {
             ),
           ),
           SizedBox(height: 128 - 48 + MediaQuery.paddingOf(context).top),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: [
                 Text(
-                  'Latest Transactions',
-                  style: TextStyle(
+                  context.translations.latestTransactions,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -261,14 +262,16 @@ class _HomeViewState extends State<HomeView> with GoRouterAware {
                         color: Colors.grey,
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'No recent transactions',
-                        style: TextStyle(color: Colors.grey),
+                      Text(
+                        context.translations.noRecentTransactions,
+                        style: const TextStyle(color: Colors.grey),
                       ),
                       const SizedBox(height: 8),
                       TextButton(
                         onPressed: () => context.go(Screen.transactions.location),
-                        child: const Text('Add or view transactions'),
+                        child: Text(
+                          context.translations.addOrViewTransactions,
+                        ),
                       ),
                     ],
                   ),

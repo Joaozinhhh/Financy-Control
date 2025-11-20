@@ -1,3 +1,4 @@
+import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/features/onboarding/splash/splash_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -45,7 +46,7 @@ class _SplashViewState extends State<SplashView> {
                   const Icon(Icons.error_outline, size: 48, color: Colors.red),
                   const SizedBox(height: 16),
                   Text(
-                    'Error checking auth status',
+                    context.translations.errorCheckingAuthStatus,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),

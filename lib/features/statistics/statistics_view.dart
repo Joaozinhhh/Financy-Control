@@ -139,7 +139,7 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: kFlexibleSpace,
-        title: const Text('Statistics'),
+        title: Text(context.translations.statisticsTitle),
         actions: [launchUrl('https://example.com')], // TODO: replace with actual URL
       ),
       body: Column(
@@ -175,7 +175,7 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
                             children: [
                               Expanded(
                                 child: _RangeButton(
-                                  label: 'Day',
+                                  label: context.translations.day,
                                   isSelected: _selectedRange == 'Day',
                                   onTap: () => _updateDateRange('Day'),
                                 ),
@@ -183,7 +183,7 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: _RangeButton(
-                                  label: 'Week',
+                                  label: context.translations.week,
                                   isSelected: _selectedRange == 'Week',
                                   onTap: () => _updateDateRange('Week'),
                                 ),
@@ -191,7 +191,7 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: _RangeButton(
-                                  label: 'Month',
+                                  label: context.translations.month,
                                   isSelected: _selectedRange == 'Month',
                                   onTap: () => _updateDateRange('Month'),
                                 ),
@@ -199,7 +199,7 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: _RangeButton(
-                                  label: 'Year',
+                                  label: context.translations.year,
                                   isSelected: _selectedRange == 'Year',
                                   onTap: () => _updateDateRange('Year'),
                                 ),
@@ -235,7 +235,7 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
                             children: [
                               Expanded(
                                 child: _SummaryCard(
-                                  title: 'Income',
+                                  title: context.translations.income,
                                   amount: _viewModel.totalIncome,
                                   color: Colors.green,
                                   icon: Icons.arrow_upward,
@@ -244,7 +244,7 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: _SummaryCard(
-                                  title: 'Expenses',
+                                  title: context.translations.expenses,
                                   amount: _viewModel.totalExpense,
                                   color: Colors.red,
                                   icon: Icons.arrow_downward,
@@ -257,16 +257,16 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
                           // Chart section
                           if (_viewModel.transactionCount > 0) ...[
                             SegmentedButton<bool>(
-                              segments: const [
+                              segments: [
                                 ButtonSegment<bool>(
                                   value: false,
-                                  label: Text('Expenses'),
-                                  icon: Icon(Icons.arrow_downward, size: 16),
+                                  label: Text(context.translations.expenses),
+                                  icon: const Icon(Icons.arrow_downward, size: 16),
                                 ),
                                 ButtonSegment<bool>(
                                   value: true,
-                                  label: Text('Income'),
-                                  icon: Icon(Icons.arrow_upward, size: 16),
+                                  label: Text(context.translations.income),
+                                  icon: const Icon(Icons.arrow_upward, size: 16),
                                 ),
                               ],
                               selected: {_showIncomeCategories},
@@ -292,7 +292,7 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
                           // Top Transactions
                           if (_viewModel.topTransactions.isNotEmpty) ...[
                             Text(
-                              'Top Transactions',
+                              context.translations.topTransactions,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                             const SizedBox(height: 12),
@@ -339,7 +339,7 @@ class _StatisticsViewState extends State<StatisticsView> with GoRouterAware {
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
-                                      'No transactions in this period',
+                                      context.translations.noTransactionsInPeriod,
                                       style: Theme.of(
                                         context,
                                       ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),

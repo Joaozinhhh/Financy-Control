@@ -1,0 +1,335 @@
+{
+  "@@locale": "en",
+  "accessReports": "Access Reports",
+  "@accessReports": {
+    "description": "Navigate to Reports screen from profile."
+  },
+  "addOrViewTransactions": "Add or view transactions",
+  "@addOrViewTransactions": {
+    "description": "CTA to go to transactions page."
+  },
+  "addTransactionsToGenerateReports": "Add some transactions to generate reports",
+  "@addTransactionsToGenerateReports": {
+    "description": "Helper text for empty reports."
+  },
+  "allTime": "All Time",
+  "@allTime": {
+    "description": "Time range selector label: All time."
+  },
+  "alreadyHaveAccountSignIn": "Already have an account? Sign In",
+  "@alreadyHaveAccountSignIn": {
+    "description": "Link to sign-in screen from sign-up."
+  },
+  "amount": "Amount",
+  "@amount": {
+    "description": "Transaction amount label."
+  },
+  "backToSignIn": "Back to Sign In",
+  "@backToSignIn": {
+    "description": "Navigate back to sign-in screen."
+  },
+  "balance": "Balance",
+  "@balance": {
+    "description": "Current account balance label."
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel action label."
+  },
+  "category": "Category",
+  "@category": {
+    "description": "Transaction category label."
+  },
+  "changeName": "Change Name",
+  "@changeName": {
+    "description": "List tile/action to change display name."
+  },
+  "changePassword": "Change Password",
+  "@changePassword": {
+    "description": "List tile/action to change password."
+  },
+  "confirmDeletion": "Confirm Deletion",
+  "@confirmDeletion": {
+    "description": "Title of delete confirmation dialog."
+  },
+  "confirmDeletionBody": "Are you sure you want to delete all your data? This action cannot be undone.",
+  "@confirmDeletionBody": {
+    "description": "Body text of delete confirmation dialog."
+  },
+  "confirmPassword": "Confirm Password",
+  "@confirmPassword": {
+    "description": "Confirm password input label/placeholder."
+  },
+  "createTransaction": "Create Transaction",
+  "@createTransaction": {
+    "description": "Title when creating a transaction."
+  },
+  "date": "Date",
+  "@date": {
+    "description": "Transaction date label."
+  },
+  "day": "Day",
+  "@day": {
+    "description": "Time range selector label: Day."
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete action label."
+  },
+  "deleteData": "Delete Data",
+  "@deleteData": {
+    "description": "Danger action to delete all user data."
+  },
+  "description": "Description",
+  "@description": {
+    "description": "Transaction description label."
+  },
+  "dontHaveAccountSignUp": "Don't have an account? Sign Up",
+  "@dontHaveAccountSignUp": {
+    "description": "Link to sign-up screen from sign-in."
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit action label."
+  },
+  "editTransaction": "Edit Transaction",
+  "@editTransaction": {
+    "description": "Title when editing a transaction."
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Email input label/placeholder."
+  },
+  "enterAmount": "Enter an amount",
+  "@enterAmount": {
+    "description": "Validation/help text for amount input."
+  },
+  "enterDescription": "Enter a description",
+  "@enterDescription": {
+    "description": "Validation/help text for description input."
+  },
+  "enterNewName": "Enter your new name",
+  "@enterNewName": {
+    "description": "Prompt in name change dialog."
+  },
+  "enterNewPassword": "Enter your new password",
+  "@enterNewPassword": {
+    "description": "Prompt in password change dialog."
+  },
+  "error": "Error",
+  "@error": {
+    "description": "Generic error label/prefix."
+  },
+  "errorCheckingAuthStatus": "Error checking auth status",
+  "@errorCheckingAuthStatus": {
+    "description": "Splash error message when auth check fails."
+  },
+  "expenseBreakdown": "Expense Breakdown",
+  "@expenseBreakdown": {
+    "description": "Header for expense categories list."
+  },
+  "expenses": "Expenses",
+  "@expenses": {
+    "description": "Money spent label."
+  },
+  "exportReportAsPdf": "Export Report as PDF",
+  "@exportReportAsPdf": {
+    "description": "Button label to export reports as PDF."
+  },
+  "financeApp": "Finance App",
+  "@financeApp": {
+    "description": "Marketing/product name on auth screens."
+  },
+  "forgotPassword": "Forgot Password?",
+  "@forgotPassword": {
+    "description": "Link to reset password screen."
+  },
+  "generatingPdf": "Generating PDF...",
+  "@generatingPdf": {
+    "description": "Disabled button label while generating PDF."
+  },
+  "guest": "Guest",
+  "@guest": {
+    "description": "Anonymous user display name."
+  },
+  "income": "Income",
+  "@income": {
+    "description": "Money received label."
+  },
+  "incomeBreakdown": "Income Breakdown",
+  "@incomeBreakdown": {
+    "description": "Header for income categories list."
+  },
+  "latestTransactions": "Latest Transactions",
+  "@latestTransactions": {
+    "description": "Home section header for recent transactions."
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout action label."
+  },
+  "month": "Month",
+  "@month": {
+    "description": "Time range selector label: Month."
+  },
+  "name": "Name",
+  "@name": {
+    "description": "Name input label/placeholder."
+  },
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Bottom nav label for Home screen."
+  },
+  "navProfile": "Profile",
+  "@navProfile": {
+    "description": "Bottom nav label for Profile screen."
+  },
+  "navStatistics": "Statistics",
+  "@navStatistics": {
+    "description": "Bottom nav label for Statistics screen."
+  },
+  "navWallet": "Wallet",
+  "@navWallet": {
+    "description": "Bottom nav label for Wallet/Transactions tab."
+  },
+  "netBalance": "Net Balance",
+  "@netBalance": {
+    "description": "Summary card label for net balance."
+  },
+  "noRecentTransactions": "No recent transactions",
+  "@noRecentTransactions": {
+    "description": "Empty state for no recent transactions."
+  },
+  "noTransactionsAvailable": "No transactions available.",
+  "@noTransactionsAvailable": {
+    "description": "Empty state message in Transactions list."
+  },
+  "noTransactionsInPeriod": "No transactions in this period",
+  "@noTransactionsInPeriod": {
+    "description": "Empty state message for filtered period."
+  },
+  "or": "or",
+  "@or": {
+    "description": "Divider text between actions."
+  },
+  "outcome": "Expenses",
+  "@outcome": {
+    "description": "Alias for expenses/outflow."
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Password input label/placeholder."
+  },
+  "passwordResetLinkSent": "Password reset link sent!",
+  "@passwordResetLinkSent": {
+    "description": "Success message after requesting password reset."
+  },
+  "printPdf": "Print PDF",
+  "@printPdf": {
+    "description": "Print PDF option title."
+  },
+  "printPdfSubtitle": "Print or preview before saving",
+  "@printPdfSubtitle": {
+    "description": "Print option subtitle."
+  },
+  "profileTitle": "Profile",
+  "@profileTitle": {
+    "description": "AppBar title for profile screen."
+  },
+  "reportsTitle": "Reports",
+  "@reportsTitle": {
+    "description": "AppBar title for reports screen."
+  },
+  "reportSummary": "Report Summary",
+  "@reportSummary": {
+    "description": "Section header in Reports screen."
+  },
+  "resetPassword": "Reset Password",
+  "@resetPassword": {
+    "description": "Title/button text on reset password flow."
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Primary save action."
+  },
+  "saveChanges": "Save Changes",
+  "@saveChanges": {
+    "description": "Save edits action."
+  },
+  "selectCategory": "Select Category",
+  "@selectCategory": {
+    "description": "Dropdown hint for choosing category."
+  },
+  "selectDate": "Select a date",
+  "@selectDate": {
+    "description": "Hint text for picking a date."
+  },
+  "sharePdf": "Share PDF",
+  "@sharePdf": {
+    "description": "Share generated PDF option title."
+  },
+  "sharePdfSubtitle": "Share via apps (email, messaging, etc.)",
+  "@sharePdfSubtitle": {
+    "description": "Share option subtitle."
+  },
+  "signIn": "Sign In",
+  "@signIn": {
+    "description": "Primary button for login action."
+  },
+  "signUp": "Sign Up",
+  "@signUp": {
+    "description": "Primary button for sign-up action."
+  },
+  "signUpHeaderL1": "Let's",
+  "@signUpHeaderL1": {
+    "description": "Sign-up header line 1."
+  },
+  "signUpHeaderL2": "Create your",
+  "@signUpHeaderL2": {
+    "description": "Sign-up header line 2."
+  },
+  "signUpHeaderL3": "account",
+  "@signUpHeaderL3": {
+    "description": "Sign-up header line 3."
+  },
+  "statisticsTitle": "Statistics",
+  "@statisticsTitle": {
+    "description": "AppBar title for statistics screen."
+  },
+  "topTransactions": "Top Transactions",
+  "@topTransactions": {
+    "description": "Section header for top transactions list."
+  },
+  "totalExpenses": "Total Expenses",
+  "@totalExpenses": {
+    "description": "Summary card label for total expenses."
+  },
+  "totalIncome": "Total Income",
+  "@totalIncome": {
+    "description": "Summary card label for total income."
+  },
+  "totalTransactions": "Total Transactions",
+  "@totalTransactions": {
+    "description": "Summary card label for transaction count."
+  },
+  "transactionDetails": "Transaction Details",
+  "@transactionDetails": {
+    "description": "Title when viewing a transaction."
+  },
+  "transactionsTitle": "Transactions",
+  "@transactionsTitle": {
+    "description": "AppBar title for transactions list."
+  },
+  "week": "Week",
+  "@week": {
+    "description": "Time range selector label: Week."
+  },
+  "welcomeBack": "Welcome back,",
+  "@welcomeBack": {
+    "description": "Greeting headline on Home header."
+  },
+  "year": "Year",
+  "@year": {
+    "description": "Time range selector label: Year."
+  }
+}
