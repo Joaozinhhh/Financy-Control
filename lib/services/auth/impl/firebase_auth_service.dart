@@ -43,7 +43,6 @@ class FirebaseAuthService implements AuthService {
           email: user.email!,
           name: user.displayName ?? '',
         );
-        await _storage.setCurrentUser(userModel.id);
         return DataResult.success(userModel);
       } else {
         return DataResult.failure(const FirebaseAuthFailure("Could not sign in. Please try again."));
@@ -71,14 +70,16 @@ class FirebaseAuthService implements AuthService {
       );
       final user = credential.user;
       if (user != null) {
-        await user.updateDisplayName(userInput.name);
         final userModel = UserModel(
           id: user.uid,
           email: user.email!,
-          name: user.displayName ?? '',
+          name: userInput.name!,
         );
-        await _storage.setCurrentUser(userModel.id);
-        await _storage.saveUser(id: userModel.id, name: userModel.name, email: userModel.email);
+        await _storage.saveUser(
+          id: userModel.id,
+          name: userModel.name,
+          email: userModel.email,
+        );
         return DataResult.success(userModel);
       } else {
         return DataResult.failure(const FirebaseAuthFailure("Could not create user. Please try again."));
@@ -96,8 +97,7 @@ class FirebaseAuthService implements AuthService {
         return Future.value(DataResult.failure(const FirebaseAuthFailure('No user logged in')));
       }
       await user.updateDisplayName(newName);
-      final success = await _storage.updateUserName(user.uid, newName);
-      return Future.value(DataResult.success(success));
+      return Future.value(DataResult.success(true));
     } catch (e) {
       return Future.value(DataResult.failure(FirebaseAuthFailure(e.toString())));
     }
@@ -111,8 +111,7 @@ class FirebaseAuthService implements AuthService {
         return Future.value(DataResult.failure(const FirebaseAuthFailure('No user logged in')));
       }
       await user.updatePassword(newPassword);
-      final success = await _storage.updateUserPassword(user.uid, newPassword);
-      return Future.value(DataResult.success(success));
+      return Future.value(DataResult.success(true));
     } catch (e) {
       return Future.value(DataResult.failure(FirebaseAuthFailure(e.toString())));
     }

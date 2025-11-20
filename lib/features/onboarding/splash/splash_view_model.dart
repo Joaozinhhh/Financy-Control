@@ -21,9 +21,6 @@ class SplashViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      // Simulate network delay or initialization check
-      await Future.delayed(const Duration(seconds: 5));
-      
       _user = _authService.currentUser;
 
       if (_user != null) {

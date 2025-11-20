@@ -3,29 +3,21 @@ import 'package:financy_control/core/data/exceptions.dart';
 import 'package:financy_control/core/models/transaction_model.dart';
 import 'package:financy_control/repositories/transaction_repository.dart';
 import 'package:financy_control/services/storage/storage_service.dart';
+import 'package:uuid/uuid.dart';
 
-class MockTransactionRepository implements TransactionRepository {
+class TransactionRepositoryImpl implements TransactionRepository {
   final StorageService _storage;
-  final Duration _delay;
 
-  MockTransactionRepository({
-    required StorageService storage,
-    Duration delay = const Duration(milliseconds: 500),
-  })  : _storage = storage,
-        _delay = delay;
+  TransactionRepositoryImpl({required StorageService storage}) : _storage = storage;
 
   @override
   Future<DataResult<TransactionModel>> createTransaction(
     TransactionInputModel input,
   ) async {
     try {
-      await Future.delayed(_delay);
-
       final transaction = TransactionModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        amount: input.category.income
-            ? input.amount ?? 0.0
-            : -(input.amount ?? 0.0),
+        id: const Uuid().v7(),
+        amount: input.category.income ? input.amount ?? 0.0 : -(input.amount ?? 0.0),
         description: input.description,
         date: input.date,
         category: input.category,
@@ -41,7 +33,6 @@ class MockTransactionRepository implements TransactionRepository {
   @override
   Future<DataResult<bool>> deleteTransaction(String id) async {
     try {
-      await Future.delayed(_delay);
       final success = await _storage.deleteTransaction(id);
       if (!success) {
         return DataResult.failure(const MockFailure('Transaction not found'));
@@ -55,7 +46,6 @@ class MockTransactionRepository implements TransactionRepository {
   @override
   Future<DataResult<double>> getBalance() async {
     try {
-      await Future.delayed(_delay);
       final balance = await _storage.getBalance();
       return DataResult.success(balance);
     } catch (e) {
@@ -69,7 +59,6 @@ class MockTransactionRepository implements TransactionRepository {
     DateTime? endDate,
   }) async {
     try {
-      await Future.delayed(_delay);
       final transactions = await _storage.getTransactions(
         startDate: startDate,
         endDate: endDate,
@@ -86,8 +75,6 @@ class MockTransactionRepository implements TransactionRepository {
     TransactionInputModel input,
   ) async {
     try {
-      await Future.delayed(_delay);
-
       final existingTransaction = await _storage.getTransactionById(id);
       if (existingTransaction == null) {
         return DataResult.failure(const MockFailure('Transaction not found'));
@@ -114,7 +101,7 @@ class MockTransactionRepository implements TransactionRepository {
 class MockFailure implements Failure {
   final String _message;
   const MockFailure(this._message);
-  
+
   @override
   String get message => _message;
 }
