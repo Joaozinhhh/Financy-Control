@@ -9,7 +9,6 @@ abstract class StorageService {
     required String id,
     required String name,
     required String email,
-    required String password,
   });
 
   Future<UserModel?> verifyCredentials({

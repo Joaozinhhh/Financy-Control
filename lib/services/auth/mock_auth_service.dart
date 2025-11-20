@@ -12,8 +12,8 @@ class MockAuthService implements AuthService {
   MockAuthService({
     required StorageService storage,
     Duration delay = const Duration(milliseconds: 500),
-  })  : _storage = storage,
-        _delay = delay;
+  }) : _storage = storage,
+       _delay = delay;
 
   UserModel? _currentUser;
 
@@ -75,7 +75,6 @@ class MockAuthService implements AuthService {
         id: userId,
         name: userInput.name ?? 'User',
         email: userInput.email,
-        password: userInput.password,
       );
 
       if (!success) {
@@ -95,17 +94,48 @@ class MockAuthService implements AuthService {
       return DataResult.failure(const MockFailure('Failed to sign up'));
     }
   }
-  
+
   // Helper to initialize current user from storage on app start
   Future<void> init() async {
     _currentUser = await _storage.getCurrentUser();
+  }
+
+  @override
+  Future<DataResult<bool>> updateUserName(String newName) async {
+    try {
+      if (_currentUser == null) {
+        return Future.value(DataResult.failure(const MockFailure('No user logged in')));
+      }
+      final success = await _storage.updateUserName(_currentUser!.id, newName);
+      _currentUser = UserModel(
+        id: _currentUser!.id,
+        name: newName,
+        email: _currentUser!.email,
+      );
+      return Future.value(DataResult.success(success));
+    } catch (e) {
+      return Future.value(DataResult.failure(const MockFailure('Failed to update user name')));
+    }
+  }
+
+  @override
+  Future<DataResult<bool>> updateUserPassword(String newPassword) async {
+    try {
+      if (_currentUser == null) {
+        return Future.value(DataResult.failure(const MockFailure('No user logged in')));
+      }
+      final success = await _storage.updateUserPassword(_currentUser!.id, newPassword);
+      return Future.value(DataResult.success(success));
+    } catch (e) {
+      return Future.value(DataResult.failure(const MockFailure('Failed to update user password')));
+    }
   }
 }
 
 class MockFailure implements Failure {
   final String _message;
   const MockFailure(this._message);
-  
+
   @override
   String get message => _message;
 }

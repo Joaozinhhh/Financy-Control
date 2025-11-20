@@ -30,7 +30,6 @@ void main() {
         id: userId,
         name: name,
         email: email,
-        password: password,
       );
 
       // Assert
@@ -54,7 +53,6 @@ void main() {
         id: '1',
         name: 'John Doe',
         email: email,
-        password: 'pass1',
       );
 
       // Act
@@ -62,7 +60,6 @@ void main() {
         id: '2',
         name: 'Jane Doe',
         email: email,
-        password: 'pass2',
       );
 
       // Assert
@@ -75,7 +72,6 @@ void main() {
         id: '1',
         name: 'John Doe',
         email: 'john@example.com',
-        password: 'correct_password',
       );
 
       // Act
@@ -95,7 +91,6 @@ void main() {
         id: userId,
         name: 'John Doe',
         email: 'john@example.com',
-        password: 'password123',
       );
 
       // Act
@@ -114,7 +109,6 @@ void main() {
         id: userId,
         name: 'John Doe',
         email: 'john@example.com',
-        password: 'password123',
       );
       await storage.setCurrentUser(userId);
 

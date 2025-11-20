@@ -41,7 +41,6 @@ class LocalStorageService implements StorageService {
     required String id,
     required String name,
     required String email,
-    required String password,
   }) async {
     final users = await _getAllUsers();
     
@@ -54,7 +53,6 @@ class LocalStorageService implements StorageService {
       'id': id,
       'name': name,
       'email': email,
-      'password': password, // In production, use proper hashing
     });
 
     return _storage.setString(_keyUsers, jsonEncode(users));
