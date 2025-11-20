@@ -19,9 +19,11 @@ class TransactionsView extends StatefulWidget {
   State<TransactionsView> createState() => _TransactionsViewState();
 }
 
+enum DateRangeOption { day, month, year }
+
 class _TransactionsViewState extends State<TransactionsView> with GoRouterAware {
   final TransactionsViewModel _viewModel = TransactionsViewModel();
-  String _selectedRange = 'Day';
+  DateRangeOption _selectedRange = DateRangeOption.month;
   String _currentRangeDisplay = DateFormat.yMMMd().format(DateTime.now());
 
   @override
@@ -49,25 +51,25 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
 
   void _onViewModelChange() => setState(() {});
 
-  void _updateDateRange(String range) {
+  void _updateDateRange(DateRangeOption range) {
     final now = DateTime.now();
     _selectedRange = range;
     switch (range) {
-      case 'Day':
+      case DateRangeOption.day:
         _currentRangeDisplay = DateFormat.yMMMd().format(now);
         _viewModel.setStartDate(DateTime(now.year, now.month, now.day));
         _viewModel.setEndDate(
           DateTime(now.year, now.month, now.day, 23, 59, 59),
         );
         break;
-      case 'Month':
+      case DateRangeOption.month:
         _currentRangeDisplay = DateFormat.yMMMM().format(now);
         _viewModel.setStartDate(DateTime(now.year, now.month, 1));
         _viewModel.setEndDate(
           DateTime(now.year, now.month + 1, 0, 23, 59, 59),
         );
         break;
-      case 'Year':
+      case DateRangeOption.year:
         _currentRangeDisplay = DateFormat.y().format(now);
         _viewModel.setStartDate(DateTime(now.year, 1, 1));
         _viewModel.setEndDate(DateTime(now.year, 12, 31, 23, 59, 59));
@@ -82,7 +84,7 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
     if (startDate == null || endDate == null) return;
 
     switch (_selectedRange) {
-      case 'Day':
+      case DateRangeOption.day:
         final offset = direction == 'previous' ? -1 : 1;
         final newDate = startDate.add(Duration(days: offset));
         _viewModel.setStartDate(
@@ -93,7 +95,7 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
         );
         _currentRangeDisplay = DateFormat.yMMMd().format(newDate);
         break;
-      case 'Month':
+      case DateRangeOption.month:
         final offset = direction == 'previous' ? -1 : 1;
         final newMonth = DateTime(startDate.year, startDate.month + offset, 1);
         _viewModel.setStartDate(newMonth);
@@ -102,7 +104,7 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
         );
         _currentRangeDisplay = DateFormat.yMMMM().format(newMonth);
         break;
-      case 'Year':
+      case DateRangeOption.year:
         final offset = direction == 'previous' ? -1 : 1;
         final newYear = DateTime(startDate.year + offset, 1, 1);
         _viewModel.setStartDate(newYear);
@@ -154,7 +156,7 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    PopupMenuButton<String>(
+                    PopupMenuButton<DateRangeOption>(
                       constraints: const BoxConstraints.tightFor(width: 100),
                       padding: EdgeInsets.zero,
                       menuPadding: EdgeInsets.zero,
@@ -163,17 +165,17 @@ class _TransactionsViewState extends State<TransactionsView> with GoRouterAware 
                       itemBuilder: (context) => [
                         PopupMenuItem(
                           padding: EdgeInsets.zero,
-                          value: 'Day',
+                          value: DateRangeOption.day,
                           child: Center(child: Text(context.translations.day)),
                         ),
                         PopupMenuItem(
                           padding: EdgeInsets.zero,
-                          value: 'Month',
+                          value: DateRangeOption.month,
                           child: Center(child: Text(context.translations.month)),
                         ),
                         PopupMenuItem(
                           padding: EdgeInsets.zero,
-                          value: 'Year',
+                          value: DateRangeOption.year,
                           child: Center(child: Text(context.translations.year)),
                         ),
                       ],
@@ -455,7 +457,8 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                                 decoration: const InputDecoration().copyWith(
                                   labelText: context.translations.amount,
                                 ),
-                                validator: (value) => value == null || value.isEmpty ? context.translations.enterAmount : null,
+                                validator: (value) =>
+                                    value == null || value.isEmpty ? context.translations.enterAmount : null,
                                 onChanged: (value) {
                                   _amount = double.tryParse(value);
                                   _processValidationChange();
@@ -467,7 +470,8 @@ class _SingleTransactionViewState extends State<SingleTransactionView> {
                                 decoration: const InputDecoration().copyWith(
                                   labelText: context.translations.description,
                                 ),
-                                validator: (value) => value == null || value.isEmpty ? context.translations.enterDescription : null,
+                                validator: (value) =>
+                                    value == null || value.isEmpty ? context.translations.enterDescription : null,
                                 onChanged: (value) {
                                   _description = value;
                                   _processValidationChange();

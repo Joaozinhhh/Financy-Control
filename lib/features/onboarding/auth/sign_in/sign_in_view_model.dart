@@ -1,3 +1,4 @@
+import 'package:financy_control/core/data/exceptions.dart';
 import 'package:financy_control/core/models/user_model.dart';
 import 'package:financy_control/locator.dart';
 import 'package:financy_control/router.dart';
@@ -9,14 +10,14 @@ class SignInViewModel extends ChangeNotifier {
   String _email = '';
   String _password = '';
   bool _isLoading = false;
-  String? _errorMessage;
+  Failure? _failure;
   UserModel? _user;
   bool _passwordVisible = false;
 
   String get email => _email;
   String get password => _password;
   bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
+  Failure? get failure => _failure;
   UserModel? get user => _user;
   bool get passwordVisible => _passwordVisible;
 
@@ -39,14 +40,14 @@ class SignInViewModel extends ChangeNotifier {
 
   Future<Screen?> signIn() async {
     _isLoading = true;
-    _errorMessage = null;
+    _failure = null;
     notifyListeners();
 
     try {
       final result = await _authService.signIn(email: _email, password: _password);
       return result.fold(
         (error) {
-          _errorMessage = error.message;
+          _failure = error;
           return null;
         },
         (user) {
@@ -55,7 +56,7 @@ class SignInViewModel extends ChangeNotifier {
         },
       );
     } catch (e) {
-      _errorMessage = e.toString();
+      _failure = UnknownFailure(e.toString());
       return null;
     } finally {
       _isLoading = false;

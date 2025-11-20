@@ -151,15 +151,13 @@ class _SignInViewState extends State<SignInView> with FormValidators {
                                     if (screen != null) {
                                       if (!context.mounted) return;
                                       context.go(screen.location);
-                                    } else if (_viewModel.errorMessage != null) {
+                                    } else if (_viewModel.failure != null) {
                                       if (!context.mounted) return;
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
                                         SnackBar(
-                                          content: Text(
-                                            _viewModel.errorMessage!,
-                                          ),
+                                          content: Text(_viewModel.failure!.message),
                                         ),
                                       );
                                     }

@@ -1,12 +1,10 @@
 import 'package:financy_control/core/extensions.dart';
 import 'package:financy_control/locator.dart';
-import 'package:financy_control/repositories/user_repository.dart';
 import 'package:financy_control/router.dart';
 import 'package:financy_control/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class ProfileViewModel extends ChangeNotifier {
-  final UserRepository _userRepository = locator<UserRepository>();
   final AuthService _authService = locator<AuthService>();
 
   String _name = '';
@@ -25,14 +23,13 @@ class ProfileViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      final result = await _userRepository.getUserProfile();
-      result.fold(
-        (error) => _errorMessage = error.message,
-        (user) {
-          _name = user.name;
-          _email = user.email;
-        },
-      );
+      final user = _authService.currentUser;
+      if (user != null) {
+        _name = user.name;
+        _email = user.email;
+      } else {
+        _errorMessage = 'No user logged in';
+      }
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -47,7 +44,7 @@ class ProfileViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      final result = await _userRepository.updateUserName(newName);
+      final result = await _authService.updateUserName(newName);
       return result.fold(
         (error) {
           _errorMessage = error.message;
@@ -75,7 +72,7 @@ class ProfileViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      final result = await _userRepository.updateUserPassword(newPassword);
+      final result = await _authService.updateUserPassword(newPassword);
       return result.fold(
         (error) {
           _errorMessage = error.message;
