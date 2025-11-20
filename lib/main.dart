@@ -1,6 +1,8 @@
 import 'package:financy_control/core/components/constants.dart';
+import 'package:financy_control/firebase_options.dart';
 import 'package:financy_control/l10n/gen/app_localizations.dart';
 import 'package:financy_control/router.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -8,6 +10,7 @@ import 'locator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupLocator();
   runApp(const MainApp());
 }

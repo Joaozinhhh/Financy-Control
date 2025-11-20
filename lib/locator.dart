@@ -1,9 +1,7 @@
 import 'package:financy_control/repositories/impl/mock_transaction_repository.dart';
-import 'package:financy_control/repositories/impl/mock_user_repository.dart';
 import 'package:financy_control/repositories/transaction_repository.dart';
-import 'package:financy_control/repositories/user_repository.dart';
 import 'package:financy_control/services/auth/auth_service.dart';
-import 'package:financy_control/services/auth/mock_auth_service.dart';
+import 'package:financy_control/services/auth/firebase_auth_service/firebase_auth_service.dart';
 import 'package:financy_control/services/storage/impl/local_storage_service.dart';
 import 'package:financy_control/services/storage/storage_service.dart';
 import 'package:get_it/get_it.dart';
@@ -17,15 +15,11 @@ Future<void> setupLocator() async {
   locator.registerLazySingleton<StorageService>(() => storageService);
 
   // Register auth service
-  final authService = MockAuthService(storage: storageService);
-  await authService.init();
+  final authService = FirebaseAuthService(storage: storageService);
   locator.registerLazySingleton<AuthService>(() => authService);
 
   // Register repositories
   locator.registerLazySingleton<TransactionRepository>(
     () => MockTransactionRepository(storage: storageService),
-  );
-  locator.registerLazySingleton<UserRepository>(
-    () => MockUserRepository(storage: storageService),
   );
 }
