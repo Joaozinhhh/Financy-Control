@@ -1,1 +1,33 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"financycontrol-ea2ef","appId":"1:977924797306:android:9b28e3148e768da4c95cc3","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"financycontrol-ea2ef","appId":"1:977924797306:ios:1dc39c2a1a9d3ccac95cc3","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"financycontrol-ea2ef","configurations":{"android":"1:977924797306:android:9b28e3148e768da4c95cc3","ios":"1:977924797306:ios:1dc39c2a1a9d3ccac95cc3"}}}}}}
+{
+    "firestore": {
+        "rules": "firestore.rules"
+    },
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "financycontrol-ea2ef",
+                    "appId": "1:977924797306:android:9b28e3148e768da4c95cc3",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "ios": {
+                "default": {
+                    "projectId": "financycontrol-ea2ef",
+                    "appId": "1:977924797306:ios:1dc39c2a1a9d3ccac95cc3",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "ios/Runner/GoogleService-Info.plist"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "financycontrol-ea2ef",
+                    "configurations": {
+                        "android": "1:977924797306:android:9b28e3148e768da4c95cc3",
+                        "ios": "1:977924797306:ios:1dc39c2a1a9d3ccac95cc3"
+                    }
+                }
+            }
+        }
+    }
+}
