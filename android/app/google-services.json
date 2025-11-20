@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "977924797306",
+    "project_id": "financycontrol-ea2ef",
+    "storage_bucket": "financycontrol-ea2ef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977924797306:android:9b28e3148e768da4c95cc3",
+        "android_client_info": {
+          "package_name": "br.com.joaovitor.financy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6ZB-r0UvCxiGKtq8MXWNTldP-dyRqbeA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
