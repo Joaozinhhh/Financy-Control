@@ -3,6 +3,7 @@ import 'package:financy_control/core/models/user_model.dart';
 import 'package:financy_control/services/auth/auth_service.dart';
 import 'package:financy_control/services/storage/storage_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseAuthService implements AuthService {
   FirebaseAuthService({required StorageService storage}) : _storage = storage;
@@ -59,7 +60,11 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  Future<void> signOut() async => await _firebaseAuth.signOut();
+  Future<void> signOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await _firebaseAuth.signOut();
+  }
 
   @override
   Future<DataResult<UserModel>> signUp(UserInputModel userInput) async {
@@ -112,6 +117,21 @@ class FirebaseAuthService implements AuthService {
       }
       await user.updatePassword(newPassword);
       return Future.value(DataResult.success(true));
+    } catch (e) {
+      return Future.value(DataResult.failure(FirebaseAuthFailure(e.toString())));
+    }
+  }
+
+  @override
+  Future<DataResult<bool>> validateCurrentUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final storedId = prefs.getString('userId');
+      if (storedId == _firebaseAuth.currentUser?.uid) {
+        return Future.value(DataResult.success(true));
+      } else {
+        return Future.value(DataResult.success(false));
+      }
     } catch (e) {
       return Future.value(DataResult.failure(FirebaseAuthFailure(e.toString())));
     }

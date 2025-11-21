@@ -17,5 +17,7 @@ abstract class AuthService {
 
   Future<DataResult<bool>> updateUserPassword(String newPassword);
 
+  Future<DataResult<bool>> validateCurrentUser();
+
   UserModel? get currentUser;
 }

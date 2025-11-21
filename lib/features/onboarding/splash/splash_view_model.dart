@@ -21,13 +21,21 @@ class SplashViewModel extends ChangeNotifier {
     rebuild();
 
     try {
-      _user = _authService.currentUser;
-
-      if (_user != null) {
-        return Screen.home;
-      } else {
-        return Screen.signUp;
-      }
+      final result = await _authService.validateCurrentUser();
+      return result.fold(
+        (error) {
+          _errorMessage = error.message;
+          return Screen.signUp;
+        },
+        (isValid) {
+          if (isValid) {
+            _user = _authService.currentUser;
+            return Screen.home;
+          } else {
+            return Screen.signIn;
+          }
+        },
+      );
     } catch (e) {
       _errorMessage = e.toString();
       // On error, navigate to sign up as fallback
