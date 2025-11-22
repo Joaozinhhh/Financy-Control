@@ -33,6 +33,7 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<DataResult<UserModel>> signIn({required String email, required String password}) async {
     try {
+      final prefs = await SharedPreferences.getInstance();
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -44,6 +45,7 @@ class FirebaseAuthService implements AuthService {
           email: user.email!,
           name: user.displayName ?? '',
         );
+        await prefs.setString('userId', userModel.id);
         return DataResult.success(userModel);
       } else {
         return DataResult.failure(const FirebaseAuthFailure("Could not sign in. Please try again."));
@@ -69,6 +71,7 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<DataResult<UserModel>> signUp(UserInputModel userInput) async {
     try {
+      final prefs = await SharedPreferences.getInstance();
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: userInput.email,
         password: userInput.password,
@@ -85,6 +88,7 @@ class FirebaseAuthService implements AuthService {
           name: userModel.name,
           email: userModel.email,
         );
+        await prefs.setString('userId', userModel.id);
         return DataResult.success(userModel);
       } else {
         return DataResult.failure(const FirebaseAuthFailure("Could not create user. Please try again."));
@@ -127,7 +131,7 @@ class FirebaseAuthService implements AuthService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final storedId = prefs.getString('userId');
-      if (storedId == _firebaseAuth.currentUser?.uid) {
+      if (_firebaseAuth.currentUser?.uid != null && _firebaseAuth.currentUser!.uid == storedId) {
         return Future.value(DataResult.success(true));
       } else {
         return Future.value(DataResult.success(false));

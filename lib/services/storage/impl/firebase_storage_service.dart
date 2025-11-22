@@ -6,6 +6,12 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseStorageService implements StorageService {
+  FirebaseStorageService() {
+    _db.settings = const Settings(
+      persistenceEnabled: true,
+    );
+  }
+
   FirebaseFirestore get _db => FirebaseFirestore.instance;
   FirebaseAuth get _auth => FirebaseAuth.instance;
   CollectionReference<Map<String, dynamic>> get userCollection => _db.collection('users');
