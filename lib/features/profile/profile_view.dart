@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:financy_control/core/components/buttons.dart';
 import 'package:financy_control/core/components/constants.dart';
 import 'package:financy_control/core/components/textfields.dart';
@@ -68,14 +70,47 @@ class _ProfileViewState extends State<ProfileView> {
                   child: Column(
                     children: [
                       ConstrainedBox(
-                        constraints: BoxConstraints.tight(
-                          const Size.square(128),
-                        ),
-                        child: const FittedBox(
-                          child: CircleAvatar(
-                            radius: 50,
-                            child: Icon(Icons.person),
-                          ),
+                        constraints: BoxConstraints.tight(const Size.square(128)),
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: FittedBox(
+                                child: CircleAvatar(
+                                  radius: 64,
+                                  backgroundColor: Colors.grey.shade200,
+                                  backgroundImage: switch (_viewModel.avatarBase64) {
+                                    final b64? => MemoryImage(base64Decode(b64)),
+                                    _ => null,
+                                  },
+                                  child: _viewModel.avatarBase64 == null ? const Icon(Icons.person, size: 48) : null,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Material(
+                                color: Theme.of(context).colorScheme.primary,
+                                shape: const CircleBorder(),
+                                child: InkWell(
+                                  customBorder: const CircleBorder(),
+                                  onTap: _viewModel.isAvatarUploading
+                                      ? null
+                                      : () async => _viewModel.pickAndUploadAvatar(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: _viewModel.isAvatarUploading
+                                        ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(strokeWidth: 2),
+                                          )
+                                        : const Icon(Icons.camera_alt, size: 20, color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 8),

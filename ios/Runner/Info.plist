@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key><string>Allow selection of a profile picture.</string>
+	<key>NSCameraUsageDescription</key><string>Allow taking a profile picture.</string>
 </dict>
 </plist>
